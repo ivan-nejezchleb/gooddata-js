@@ -27,5 +27,10 @@ export const createDataProduct = (contractId, dataProductId, domainIds) =>
         })
     });
 
+export const renameDataProduct = (contractId, dataProductId, newDataProductId) =>
+    post(routes.interpolate(routes.CONTRACT_DATA_PRODUCT_RENAME, { contractId, dataProductId }), {
+        data: JSON.stringify({ dataProductRename: { id: newDataProductId } })
+    });
+
 export const deleteDataProduct = (contractId, dataProductId) =>
     deleteObject(routes.interpolate(routes.CONTRACT_DATA_PRODUCT, { contractId, dataProductId }));
