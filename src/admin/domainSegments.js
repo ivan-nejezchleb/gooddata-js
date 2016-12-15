@@ -53,3 +53,18 @@ export const deleteDomainSegment = (contractId, dataProductId, segmentId, domain
         routes.interpolate(routes.CONTRACT_DATA_PRODUCT_DOMAIN_SEGMENTS_DOMAIN,
         { contractId, dataProductId, segmentId, domainId }
     ));
+
+export const renameDomainSegment = (contractId, dataProductId, segmentId, domainId, newSegmentId) =>
+    post(
+        routes.interpolate(
+            routes.CONTRACT_DATA_PRODUCT_DOMAIN_SEGMENTS_DOMAIN_RENAME,
+            { contractId, dataProductId, segmentId, domainId }
+        ),
+        {
+            data: JSON.stringify({
+                domainSegmentRename: {
+                    id: newSegmentId
+                }
+            })
+        }
+    );
