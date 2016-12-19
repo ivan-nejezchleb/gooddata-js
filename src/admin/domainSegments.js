@@ -68,3 +68,9 @@ export const renameDomainSegment = (contractId, dataProductId, segmentId, domain
             })
         }
     );
+
+export const syncDomainSegment = (contractId, dataProductId, segmentId, domainId) =>
+    post(routes.interpolate(
+        routes.CONTRACT_DATA_PRODUCT_DOMAIN_SEGMENTS_DOMAIN_SYNC,
+        { contractId, dataProductId, segmentId, domainId }
+    ));
