@@ -21,3 +21,19 @@ export const createSegment = (contractId, dataProductId, segmentId, domainId) =>
             }
         })
     });
+
+export const deploySegment = (contractId, dataProductId, domainSeg, sourceId, targetDom, sync) =>
+    post(routes.interpolate(routes.DEPLOY_SEGMENT, {
+        contractId,
+        dataProductId,
+        segmentId: domainSeg,
+        domainId: sourceId
+    }, sync && {
+        synchronize: sync
+    }), {
+        data: JSON.stringify({
+            deploySegmentRequest: {
+                domain: targetDom
+            }
+        })
+    });

@@ -34,6 +34,8 @@ export const CONTRACT_USERS = `${CONTRACT}/users`;
 
 export const USER_CONTRACTS = `${ROOT}/users/:userId/contracts`;
 
+export const DEPLOY_SEGMENT = `${CONTRACT_DOMAIN}/dataProducts/:dataProductId/segments/:segmentId/deploy`;
+
 // parse params in route string accoring to template
 // returns params as plain object
 export const parse = (route, template) => {
