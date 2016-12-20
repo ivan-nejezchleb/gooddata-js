@@ -37,3 +37,9 @@ export const deploySegment = (contractId, dataProductId, domainSeg, sourceId, ta
             }
         })
     });
+
+export const renameSegment = (contractId, dataProductId, segmentId, newSegmentId) =>
+    post(
+        routes.interpolate(routes.CONTRACT_DATA_PRODUCT_SEGMENT_RENAME, { contractId, dataProductId, segmentId }),
+        { data: JSON.stringify({ segmentRename: { id: newSegmentId } }) }
+    );
