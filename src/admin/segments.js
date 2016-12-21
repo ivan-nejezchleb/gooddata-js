@@ -22,22 +22,6 @@ export const createSegment = (contractId, dataProductId, segmentId, domainId) =>
         })
     });
 
-export const deploySegment = (contractId, dataProductId, domainSeg, sourceId, targetDom, sync) =>
-    post(routes.interpolate(routes.DEPLOY_SEGMENT, {
-        contractId,
-        dataProductId,
-        segmentId: domainSeg,
-        domainId: sourceId
-    }, sync && {
-        synchronize: sync
-    }), {
-        data: JSON.stringify({
-            deploySegmentRequest: {
-                domain: targetDom
-            }
-        })
-    });
-
 export const renameSegment = (contractId, dataProductId, segmentId, newSegmentId) =>
     post(
         routes.interpolate(routes.CONTRACT_DATA_PRODUCT_SEGMENT_RENAME, { contractId, dataProductId, segmentId }),
