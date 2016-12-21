@@ -30,6 +30,8 @@ export const CONTRACT_DATA_PRODUCT_DOMAIN_SEGMENTS_DOMAIN_CLIENT_USERS =
 export const CONTRACT_DOMAINS = `${CONTRACT}/domains`;
 export const CONTRACT_DOMAIN = `${CONTRACT_DOMAINS}/:domainId`;
 export const CONTRACT_DOMAIN_USERS = `${CONTRACT_DOMAIN}/users`;
+export const CONTRACT_DOMAIN_PROJECTS = `${CONTRACT_DOMAIN}/projects`;
+export const CONTRACT_DOMAIN_PROJECT = `${CONTRACT_DOMAIN_PROJECTS}/:projectId`;
 
 export const CONTRACT_USERS = `${CONTRACT}/users`;
 
