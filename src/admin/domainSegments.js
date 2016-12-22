@@ -75,18 +75,12 @@ export const syncDomainSegment = (contractId, dataProductId, segmentId, domainId
         { contractId, dataProductId, segmentId, domainId }
     ));
 
-export const deploySegment = (contractId, dataProductId, domainSeg, sourceId, targetDom, sync) =>
-    post(routes.interpolate(routes.DEPLOY_SEGMENT, {
-        contractId,
-        dataProductId,
-        segmentId: domainSeg,
-        domainId: sourceId
-    }, sync && {
-        synchronize: sync
-    }), {
-        data: JSON.stringify({
-            deploySegmentRequest: {
-                domain: targetDom
-            }
-        })
-    });
+export const deployDomainSegment = (contractId, dataProductId, segmentId, domainId, targetDomainId, synchronize) =>
+    post(
+        routes.interpolate(
+            routes.DEPLOY_SEGMENT,
+            { contractId, dataProductId, segmentId, domainId },
+            synchronize && { synchronize }
+        ),
+        { data: JSON.stringify({ deploySegmentRequest: { domain: targetDomainId } }) }
+    );
