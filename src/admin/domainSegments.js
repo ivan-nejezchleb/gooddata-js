@@ -1,4 +1,6 @@
-import { get, post, deleteObject } from '../xhr';
+import _ from 'lodash';
+
+import { get, post, put, deleteObject } from '../xhr';
 import * as routes from './routes';
 
 const transformDomainSegment = (item) => {
