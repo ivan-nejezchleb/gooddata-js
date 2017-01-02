@@ -63,7 +63,10 @@ export const getDomainProjects = (contractId, domainId, query, paging) => {
     }
 
     const uri = paging ?
-        paging.next : routes.interpolate(routes.CONTRACT_DOMAIN_PROJECTS, { contractId, domainId }, query);
+        paging.next : routes.interpolate(
+            routes.CONTRACT_DOMAIN_PROJECTS, 
+            { contractId, domainId }, query && { prefixSearch: query }
+        );
 
     return get(uri).then(result => ({
         ...result.projects,
