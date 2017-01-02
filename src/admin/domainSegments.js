@@ -84,3 +84,14 @@ export const deployDomainSegment = (contractId, dataProductId, segmentId, domain
         ),
         { data: JSON.stringify({ deploySegmentRequest: { domain: targetDomainId } }) }
     );
+
+export const updateDomainSegment = (domainSegment) =>
+    put(routes.interpolate(routes.CONTRACT_DATA_PRODUCT_DOMAIN_SEGMENTS_DOMAIN, domainSegment), {
+        data: JSON.stringify({
+            domainSegment: _.omit(
+                    domainSegment, ['contractId', 'dataProductId', 'segmentId', 'domainId']
+                )
+        })
+    })
+    .then(result => result.json())
+    .then(result => transformDomainSegment(result));
