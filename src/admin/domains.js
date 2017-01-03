@@ -64,7 +64,7 @@ export const getDomainProjects = (contractId, domainId, query, paging) => {
 
     const uri = paging ?
         paging.next : routes.interpolate(
-            routes.CONTRACT_DOMAIN_PROJECTS, 
+            routes.CONTRACT_DOMAIN_PROJECTS,
             { contractId, domainId }, query && { prefixSearch: query }
         );
 
@@ -72,4 +72,4 @@ export const getDomainProjects = (contractId, domainId, query, paging) => {
         ...result.projects,
         items: result.projects.items.map(transformDomainProject)
     }));
-}
+};

@@ -1,4 +1,4 @@
-import { get, post } from '../xhr';
+import { get, post, deleteObject } from '../xhr';
 import * as routes from './routes';
 
 export const getDataProductSegments = (contractId, dataProductId) =>
@@ -27,3 +27,6 @@ export const renameSegment = (contractId, dataProductId, segmentId, newSegmentId
         routes.interpolate(routes.CONTRACT_DATA_PRODUCT_SEGMENT_RENAME, { contractId, dataProductId, segmentId }),
         { data: JSON.stringify({ segmentRename: { id: newSegmentId } }) }
     );
+
+export const deleteSegment = (contractId, dataProductId, segmentId) =>
+    deleteObject(routes.interpolate(routes.CONTRACT_DATA_PRODUCT_SEGMENT, { contractId, dataProductId, segmentId }));
