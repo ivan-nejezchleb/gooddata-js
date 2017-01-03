@@ -6,6 +6,7 @@ import * as domains from './admin/domains';
 import * as domainSegments from './admin/domainSegments';
 import * as clients from './admin/clients';
 import * as segments from './admin/segments';
+import * as logs from './admin/logs';
 import * as contracts from './admin/contracts';
 
 /**
@@ -22,6 +23,7 @@ export default {
     domains,
     domainSegments,
     clients,
+    logs,
     contracts,
     segments
 };
