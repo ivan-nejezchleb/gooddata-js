@@ -48,7 +48,7 @@ export const getDomainUsers = (contractId, domainId, query, paging) => {
 
 const transformDomainProject = (item) => {
     const project = item.project;
-    const params = routes.parse(project.links.self, routes.CONTRACT_DOMAIN_PROJECT);
+    const params = routes.parse(project.link, routes.CONTRACT_DOMAIN_PROJECT);
     return {
         id: params.projectId,
         contractId: params.contractId,
