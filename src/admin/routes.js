@@ -59,10 +59,14 @@ export const parse = (route, template) => {
     }, {});
 };
 
+export const getSingleQueryString = (key, value) => (Array.isArray(value) ?
+    value.map(item => `${encodeURIComponent(key)}=${encodeURIComponent(item)}`).join('&') :
+    `${encodeURIComponent(key)}=${encodeURIComponent(value)}`);
+
 // creates a query string from a plain js object
 export const queryString = query => (
     query ?
-        `?${Object.keys(query).map(k => `${encodeURIComponent(k)}=${encodeURIComponent(query[k])}`).join('&')}` :
+        `?${Object.keys(query).map(k => getSingleQueryString(k, query[k])).join('&')}` :
         ''
 );
 

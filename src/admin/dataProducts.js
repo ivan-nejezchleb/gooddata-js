@@ -1,8 +1,8 @@
 import { get, post, deleteObject } from '../xhr';
 import * as routes from './routes';
 
-export const getDataProducts = contractId =>
-    get(routes.interpolate(routes.CONTRACT_DATA_PRODUCTS, { contractId })).then(data => ({
+export const getDataProducts = (contractId, include) =>
+    get(routes.interpolate(routes.CONTRACT_DATA_PRODUCTS, { contractId }, include && { include })).then(data => ({
         items: data.dataProducts.items.map(item => ({
             ...item.dataProduct,
             contractId
@@ -10,8 +10,8 @@ export const getDataProducts = contractId =>
     })
 );
 
-export const getDataProduct = (contractId, dataProductId) =>
-    get(routes.interpolate(routes.CONTRACT_DATA_PRODUCT, { contractId, dataProductId })).then(data => ({
+export const getDataProduct = (contractId, dataProductId, include) =>
+    get(routes.interpolate(routes.CONTRACT_DATA_PRODUCT, { contractId, dataProductId }, include && { include })).then(data => ({
         ...data.dataProduct,
         contractId
     })
