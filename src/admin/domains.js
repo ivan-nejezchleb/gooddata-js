@@ -2,10 +2,10 @@ import { get } from '../xhr';
 import * as routes from './routes';
 
 const transformDomain = (item) => {
-    const params = routes.parse(item.domain.links.self, routes.CONTRACT_DOMAIN);
+    const { domainId, contractId } = routes.parse(item.domain.links.self, routes.CONTRACT_DOMAIN);
     return {
-        id: params.domainId,
-        contractId: params.contractId,
+        id: domainId,
+        contractId,
         ...item.domain
     };
 };

@@ -1,21 +1,36 @@
 import { get, post, deleteObject } from '../xhr';
 import * as routes from './routes';
+import * as segments from './segments';
+import * as domainDataProducts from './domainDataProducts';
+
+export const transformDataProduct = (item) => {
+    const { contractId } = routes.parse(item.dataProduct.links.self, routes.CONTRACT_DATA_PRODUCT);
+
+    const dataProduct = {
+        contractId,
+        ...item.dataProduct
+    };
+
+    if (dataProduct.domainDataProducts) {
+        dataProduct.domainDataProducts =
+            dataProduct.domainDataProducts.map(domainDataProducts.transformDomainDataProduct);
+    }
+    if (dataProduct.segments) {
+        dataProduct.segments = dataProduct.segments.map(segments.transformSegment);
+    }
+
+    return dataProduct;
+};
 
 export const getDataProducts = (contractId, include) =>
-    get(routes.interpolate(routes.CONTRACT_DATA_PRODUCTS, { contractId }, include && { include })).then(data => ({
-        items: data.dataProducts.items.map(item => ({
-            ...item.dataProduct,
-            contractId
-        }))
-    })
-);
+    get(routes.interpolate(routes.CONTRACT_DATA_PRODUCTS, { contractId }, include && { include }))
+        .then(data => ({
+            items: data.dataProducts.items.map(transformDataProduct)
+        }));
 
 export const getDataProduct = (contractId, dataProductId, include) =>
-    get(routes.interpolate(routes.CONTRACT_DATA_PRODUCT, { contractId, dataProductId }, include && { include })).then(data => ({
-        ...data.dataProduct,
-        contractId
-    })
-);
+    get(routes.interpolate(routes.CONTRACT_DATA_PRODUCT, { contractId, dataProductId }, include && { include }))
+        .then(transformDataProduct);
 
 export const createDataProduct = (contractId, dataProductId, domainIds) =>
     post(routes.interpolate(routes.CONTRACT_DATA_PRODUCTS, { contractId }), {

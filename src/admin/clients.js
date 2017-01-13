@@ -2,9 +2,14 @@ import { get } from '../xhr';
 import * as routes from './routes';
 
 const transformClient = (item) => {
-    const params = routes.parse(item.client.links.self, routes.CONTRACT_DATA_PRODUCT_DOMAIN_SEGMENTS_DOMAIN_CLIENTS);
+    const { contractId, dataProductId, domainId, segmentId } =
+        routes.parse(item.client.links.self, routes.CONTRACT_DATA_PRODUCT_DOMAIN_SEGMENT_CLIENT);
+
     return {
-        ...params,
+        contractId,
+        dataProductId,
+        domainId,
+        segmentId,
         ...item.client
     };
 };
@@ -14,7 +19,7 @@ export const getClients = (contractId, dataProductId, segmentId, domainId, filte
     const uri = paging ?
         paging.next :
         routes.interpolate(
-            routes.CONTRACT_DATA_PRODUCT_DOMAIN_SEGMENTS_DOMAIN_CLIENTS,
+            routes.CONTRACT_DATA_PRODUCT_DOMAIN_SEGMENT_CLIENTS,
             { contractId, dataProductId, segmentId, domainId },
             query
         );
@@ -46,7 +51,7 @@ export const getClientUsers = (contractId, dataProductId, domainId, segmentId, c
     const uri = paging ?
         paging.next :
         routes.interpolate(
-            routes.CONTRACT_DATA_PRODUCT_DOMAIN_SEGMENTS_DOMAIN_CLIENT_USERS,
+            routes.CONTRACT_DATA_PRODUCT_DOMAIN_SEGMENT_CLIENT_USERS,
             { contractId, dataProductId, domainId, segmentId, clientId },
             query
         );

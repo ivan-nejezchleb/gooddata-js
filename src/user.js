@@ -116,5 +116,5 @@ export function getAccountInfo() {
  */
 export function getFeatureFlags() {
     return get('/gdc/app/account/bootstrap')
-        .then((result) => result.bootstrapResource.current.featureFlags);
+        .then(result => result.bootstrapResource.current.featureFlags);
 }

@@ -3,15 +3,15 @@ import _ from 'lodash';
 import { get, post, put, deleteObject } from '../xhr';
 import * as routes from './routes';
 
-const transformDomainSegment = (item) => {
-    const params = routes.parse(item.domainSegment.links.self,
-        routes.CONTRACT_DATA_PRODUCT_DOMAIN_SEGMENTS_DOMAIN);
+export const transformDomainSegment = (item) => {
+    const { contractId, dataProductId, segmentId, domainId } =
+        routes.parse(item.domainSegment.links.self, routes.CONTRACT_DATA_PRODUCT_DOMAIN_SEGMENT);
 
     return {
-        contractId: params.contractId,
-        dataProductId: params.dataProductId,
-        segmentId: params.segmentId,
-        domainId: params.domainId,
+        contractId,
+        dataProductId,
+        segmentId,
+        domainId,
         ...item.domainSegment
     };
 };
@@ -27,7 +27,7 @@ export const getDomainSegments = (contractId, dataProductId, segmentId, query) =
 
 export const getDomainSegment = (contractId, dataProductId, segmentId, domainId, query) => {
     return get(routes.interpolate(
-        routes.CONTRACT_DATA_PRODUCT_DOMAIN_SEGMENTS_DOMAIN,
+        routes.CONTRACT_DATA_PRODUCT_DOMAIN_SEGMENT,
         { contractId, dataProductId, segmentId, domainId },
         query
     ))
@@ -37,7 +37,7 @@ export const getDomainSegment = (contractId, dataProductId, segmentId, domainId,
 export const cloneDomainSegment = (contractId, dataProductId, segmentId, domainId, newSegmentId, newDomainId) =>
     post(
         routes.interpolate(
-            routes.CONTRACT_DATA_PRODUCT_DOMAIN_SEGMENTS_DOMAIN_CLONE,
+            routes.CONTRACT_DATA_PRODUCT_DOMAIN_SEGMENT_CLONE,
             { contractId, dataProductId, segmentId, domainId }
         ),
         {
@@ -52,14 +52,14 @@ export const cloneDomainSegment = (contractId, dataProductId, segmentId, domainI
 
 export const deleteDomainSegment = (contractId, dataProductId, segmentId, domainId) =>
     deleteObject(
-        routes.interpolate(routes.CONTRACT_DATA_PRODUCT_DOMAIN_SEGMENTS_DOMAIN,
+        routes.interpolate(routes.CONTRACT_DATA_PRODUCT_DOMAIN_SEGMENT,
         { contractId, dataProductId, segmentId, domainId }
     ));
 
 export const renameDomainSegment = (contractId, dataProductId, segmentId, domainId, newSegmentId) =>
     post(
         routes.interpolate(
-            routes.CONTRACT_DATA_PRODUCT_DOMAIN_SEGMENTS_DOMAIN_RENAME,
+            routes.CONTRACT_DATA_PRODUCT_DOMAIN_SEGMENT_RENAME,
             { contractId, dataProductId, segmentId, domainId }
         ),
         {
@@ -73,7 +73,7 @@ export const renameDomainSegment = (contractId, dataProductId, segmentId, domain
 
 export const syncDomainSegment = (contractId, dataProductId, segmentId, domainId) =>
     post(routes.interpolate(
-        routes.CONTRACT_DATA_PRODUCT_DOMAIN_SEGMENTS_DOMAIN_SYNC,
+        routes.CONTRACT_DATA_PRODUCT_DOMAIN_SEGMENT_SYNC,
         { contractId, dataProductId, segmentId, domainId }
     ));
 
@@ -88,12 +88,11 @@ export const deployDomainSegment = (contractId, dataProductId, segmentId, domain
     );
 
 export const updateDomainSegment = domainSegment =>
-    put(routes.interpolate(routes.CONTRACT_DATA_PRODUCT_DOMAIN_SEGMENTS_DOMAIN, domainSegment), {
+    put(routes.interpolate(routes.CONTRACT_DATA_PRODUCT_DOMAIN_SEGMENT, domainSegment), {
         data: JSON.stringify({
             domainSegment: _.omit(
                     domainSegment, ['contractId', 'dataProductId', 'segmentId', 'domainId']
                 )
         })
     })
-    .then(result => result.json())
-    .then(result => transformDomainSegment(result));
+    .then(result => transformDomainSegment(result.json()));
