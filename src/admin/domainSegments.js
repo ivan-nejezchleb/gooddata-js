@@ -95,4 +95,5 @@ export const updateDomainSegment = domainSegment =>
                 )
         })
     })
-    .then(result => transformDomainSegment(result.json()));
+    .then(result => result.json())
+    .then(result => transformDomainSegment(result));
