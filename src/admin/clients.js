@@ -26,16 +26,15 @@ export const getClients = (contractId, dataProductId, segmentId, domainId, filte
 
     if (uri) {
         return get(uri).then(result => ({
-            items: result.client.items.map(transformClient),
-            paging: result.client.paging
+            items: result.clients.items.map(transformClient),
+            paging: result.clients.paging
         }));
     }
 
     return Promise.resolve({ items: [], paging: {} });
 };
 
-const transformClientUser = (item) => {
-    const user = item.projectUser;
+const transformClientUser = (user) => {
     return {
         id: user.login,
         fullName: `${user.firstName} ${user.lastName}`,
@@ -57,7 +56,7 @@ export const getClientUsers = (contractId, dataProductId, domainId, segmentId, c
         );
 
     return get(uri).then(result => ({
-        ...result.clientProjectUsers,
-        items: result.clientProjectUsers.items.map(transformClientUser)
+        ...result.clientUsers,
+        items: result.clientUsers.map(transformClientUser)
     }));
 };

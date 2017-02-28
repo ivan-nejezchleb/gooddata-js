@@ -29,7 +29,8 @@ export const createSegment = (contractId, dataProductId, segmentId, domainId) =>
         data: JSON.stringify({
             segmentCreate: {
                 id: segmentId,
-                domain: [routes.interpolate(routes.CONTRACT_DOMAIN, { contractId, domainId })]
+                title: segmentId,
+                domain: routes.interpolate(routes.CONTRACT_DOMAIN, { contractId, domainId })
             }
         })
     });
