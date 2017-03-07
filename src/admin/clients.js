@@ -57,6 +57,6 @@ export const getClientUsers = (contractId, dataProductId, domainId, segmentId, c
 
     return get(uri).then(result => ({
         ...result.clientUsers,
-        items: result.clientUsers.map(transformClientUser)
+        items: result.clientUsers.items.map(transformClientUser)
     }));
 };

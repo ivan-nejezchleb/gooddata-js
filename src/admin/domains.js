@@ -41,7 +41,7 @@ export const getDomainUsers = (contractId, domainId, query, paging) => {
 
     return get(uri).then(result => ({
         ...result.domainUsers,
-        items: result.items.map(transformDomainUser)
+        items: result.domainUsers.items.map(transformDomainUser)
     }));
 };
 
