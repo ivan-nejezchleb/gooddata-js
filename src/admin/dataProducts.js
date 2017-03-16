@@ -28,8 +28,8 @@ export const getDataProducts = (contractId, include) =>
             items: data.compositeResponse.data.dataProducts.items.map(transformDataProduct)
         }));
 
-export const getDataProduct = (contractId, dataProductId, include) =>
-    get(routes.interpolate(routes.CONTRACT_DATA_PRODUCT, { contractId, dataProductId }, include && { include }))
+export const getDataProduct = (contractId, dataProductId, include, stats) =>
+    get(routes.interpolate(routes.CONTRACT_DATA_PRODUCT, { contractId, dataProductId }, $.extend(include && { include }, stats && { stats })))
         .then(data => transformDataProduct(data.compositeResponse.data));
 
 export const createDataProduct = (contractId, dataProductId, domainIds) =>
