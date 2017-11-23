@@ -1,6 +1,6 @@
 import { get, find, omit, cloneDeep } from 'lodash';
 import { post, parseJSON } from './xhr';
-import { mdToExecutionConfiguration } from './execution/experimental-executions';
+import { newMdToExecutionConfiguration } from './execution/experimental-executions';
 
 const REQUEST_DEFAULTS = {
     types: ['attribute', 'metric', 'fact'],
@@ -14,36 +14,21 @@ const LOAD_DATE_DATASET_DEFAULTS = {
     includeAvailableDateAttributes: true
 };
 
-const parseCategories = bucketItems => (
-    get(bucketItems, 'categories').map(({ category }) => ({
-        category: {
-            ...category,
-            displayForm: get(category, 'attribute')
-        }
-    })
-    )
-);
+function bucketItemsToExecConfig(projectId, mdObj, options = {}) {
+    return newMdToExecutionConfiguration(projectId, mdObj, options).then((executionConfig) => {
+        const definitions = get(executionConfig, 'definitions');
 
-function bucketItemsToExecConfig(bucketItems, options = {}) {
-    const categories = parseCategories(bucketItems);
-    const executionConfig = mdToExecutionConfiguration({
-        buckets: {
-            ...bucketItems,
-            categories
-        }
-    }, options);
-    const definitions = get(executionConfig, 'definitions');
+        return get(executionConfig, 'columns').map((column) => {
+            const definition = find(definitions, ({ metricDefinition }) =>
+                get(metricDefinition, 'identifier') === column
+            );
+            const maql = get(definition, 'metricDefinition.expression');
 
-    return get(executionConfig, 'columns').map((column) => {
-        const definition = find(definitions, ({ metricDefinition }) =>
-            get(metricDefinition, 'identifier') === column
-        );
-        const maql = get(definition, 'metricDefinition.expression');
-
-        if (maql) {
-            return maql;
-        }
-        return column;
+            if (maql) {
+                return maql;
+            }
+            return column;
+        });
     });
 }
 
@@ -94,15 +79,15 @@ export function loadItems(projectId, options = {}) {
         ...getRequiredDataSets(options)
     }, ['dataSetIdentifier', 'returnAllDateDataSets']);
 
-    let bucketItems = get(cloneDeep(options), 'bucketItems.buckets');
-    if (bucketItems) {
-        bucketItems = bucketItemsToExecConfig(bucketItems);
-        return loadCatalog(
-            projectId,
-            {
-                ...request,
-                bucketItems
-            }
+    const mdObj = get(cloneDeep(options), 'bucketItems');
+    if (mdObj) {
+        return bucketItemsToExecConfig(projectId, mdObj).then(bucketItems =>
+            loadCatalog(projectId,
+                {
+                    ...request,
+                    bucketItems
+                }
+            )
         );
     }
 
@@ -118,26 +103,29 @@ function requestDateDataSets(projectId, dateDataSetsRequest) {
 }
 
 export function loadDateDataSets(projectId, options) {
-    let bucketItems = get(cloneDeep(options), 'bucketItems.buckets');
-
-    if (bucketItems) {
-        bucketItems = bucketItemsToExecConfig(bucketItems, { removeDateItems: true });
+    const mdObj = get(cloneDeep(options), 'bucketItems');
+    let bucketItemsPromise;
+    if (mdObj) {
+        bucketItemsPromise = bucketItemsToExecConfig(projectId, mdObj, { removeDateItems: true });
+    } else {
+        bucketItemsPromise = Promise.resolve();
     }
+    return bucketItemsPromise.then((bucketItems) => {
+        const omittedOptions = ['filter', 'types', 'paging', 'dataSetIdentifier', 'returnAllDateDataSets', 'returnAllRelatedDateDataSets'];
+        // includeObjectsWithTags has higher priority than excludeObjectsWithTags,
+        // so when present omit excludeObjectsWithTags
+        if (options.includeObjectsWithTags) {
+            omittedOptions.push('excludeObjectsWithTags');
+        }
 
-    const omittedOptions = ['filter', 'types', 'paging', 'dataSetIdentifier', 'returnAllDateDataSets', 'returnAllRelatedDateDataSets'];
-    // includeObjectsWithTags has higher priority than excludeObjectsWithTags,
-    // so when present omit excludeObjectsWithTags
-    if (options.includeObjectsWithTags) {
-        omittedOptions.push('excludeObjectsWithTags');
-    }
+        const request = omit({
+            ...LOAD_DATE_DATASET_DEFAULTS,
+            ...REQUEST_DEFAULTS,
+            ...options,
+            ...getRequiredDataSets(options),
+            bucketItems
+        }, omittedOptions);
 
-    const request = omit({
-        ...LOAD_DATE_DATASET_DEFAULTS,
-        ...REQUEST_DEFAULTS,
-        ...options,
-        ...getRequiredDataSets(options),
-        bucketItems
-    }, omittedOptions);
-
-    return requestDateDataSets(projectId, request);
+        return requestDateDataSets(projectId, request);
+    });
 }

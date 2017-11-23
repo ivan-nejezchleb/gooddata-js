@@ -6,7 +6,7 @@ export function setFetch(fetch) {
     realFetch = fetch;
 }
 
-export default function(url, options) {
+export default function (url, options) {
     invariant(realFetch, 'You have to define fetch implementation' +
         '(node-fetch, isomorphic-fetch) before using it.');
 
