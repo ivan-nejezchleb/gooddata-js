@@ -90,15 +90,15 @@ export function loadItems(projectId, options = {}) {
         ...getRequiredDataSets(options)
     }, ['dataSetIdentifier', 'returnAllDateDataSets']);
 
-    let bucketItems = get(cloneDeep(options), 'bucketItems');
-    if (bucketItems) {
-        bucketItems = []; // TODO: fix bucket items bucketItemsToExecConfig(bucketItems);
-        return loadCatalog(
-            projectId,
-            {
-                ...request,
-                bucketItems
-            }
+    const mdObj = get(cloneDeep(options), 'bucketItems');
+    if (mdObj) {
+        return bucketItemsToExecConfig(mdObj).then(bucketItems =>
+            loadCatalog(projectId,
+                {
+                    ...request,
+                    bucketItems
+                }
+            )
         );
     }
 
