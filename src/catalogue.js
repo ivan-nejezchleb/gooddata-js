@@ -14,18 +14,7 @@ const LOAD_DATE_DATASET_DEFAULTS = {
     includeAvailableDateAttributes: true
 };
 
-// const parseCategories = bucketItems => (
-//     get(bucketItems, 'categories').map(({ category }) => ({
-//         category: {
-//             ...category,
-//             displayForm: get(category, 'attribute')
-//         }
-//     })
-//     )
-// );
-
 function bucketItemsToExecConfig(mdObj, options = {}) {
-    // const categories = parseCategories(bucketItems);
     return newMdToExecutionConfiguration(mdObj, options).then((executionConfig) => {
         const definitions = get(executionConfig, 'definitions');
 
