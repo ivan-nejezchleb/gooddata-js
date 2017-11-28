@@ -14,8 +14,8 @@ const LOAD_DATE_DATASET_DEFAULTS = {
     includeAvailableDateAttributes: true
 };
 
-function bucketItemsToExecConfig(mdObj, options = {}) {
-    return newMdToExecutionConfiguration(mdObj, options).then((executionConfig) => {
+function bucketItemsToExecConfig(projectId, mdObj, options = {}) {
+    return newMdToExecutionConfiguration(projectId, mdObj, options).then((executionConfig) => {
         const definitions = get(executionConfig, 'definitions');
 
         return get(executionConfig, 'columns').map((column) => {
@@ -81,7 +81,7 @@ export function loadItems(projectId, options = {}) {
 
     const mdObj = get(cloneDeep(options), 'bucketItems');
     if (mdObj) {
-        return bucketItemsToExecConfig(mdObj).then(bucketItems =>
+        return bucketItemsToExecConfig(projectId, mdObj).then(bucketItems =>
             loadCatalog(projectId,
                 {
                     ...request,
@@ -106,7 +106,7 @@ export function loadDateDataSets(projectId, options) {
     const mdObj = get(cloneDeep(options), 'bucketItems');
     let bucketItemsPromise;
     if (mdObj) {
-        bucketItemsPromise = bucketItemsToExecConfig(mdObj, { removeDateItems: true });
+        bucketItemsPromise = bucketItemsToExecConfig(projectId, mdObj, { removeDateItems: true });
     } else {
         bucketItemsPromise = Promise.resolve();
     }

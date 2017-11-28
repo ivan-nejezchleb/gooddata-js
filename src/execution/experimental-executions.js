@@ -237,7 +237,7 @@ function getAttrFilterExpression(measureFilter) {
     const isNegative = get(measureFilter, 'negativeAttributeFilter', false);
     const detailPath = isNegative ? 'negativeAttributeFilter' : 'positiveAttributeFilter';
     const elementsPath = [detailPath, isNegative ? 'notIn' : 'in'];
-    const attributeUri = get(measureFilter, [detailPath, 'displayForm']);
+    const attributeUri = get(measureFilter, [detailPath, 'displayForm']); // TODO DF -> attr URI
     const elements = get(measureFilter, elementsPath, []);
     if (isEmpty(elements)) {
         return null;
@@ -378,15 +378,42 @@ const getMetricSort = (sort, isPoPMetric) => {
     return null;
 };
 
+function getMeasureSorting(measure, mdObj) {
+    const sorting = get(mdObj, ['properties', 'GdcProperties', 'sorts']); // TODO check this
+    const sortItem = get(sorting, [0]); // TODO only one sortItem now?
+    const measureSortItem = get(sortItem, ['measureSortItem']);
+    if (measureSortItem) {
+        const identifier = get(measureSortItem, ['locators', 0, 'measureLocatorItem', 'measureIdentifier']); // TODO only one item now?
+        if (identifier === get(measure, 'localIdentifier')) {
+            return get(measureSortItem, 'direction', null);
+        }
+    }
+    return null;
+}
+
+function getCategorySorting(category, mdObj) {
+    const sorting = get(mdObj, ['properties', 'GdcProperties', 'sorts']);
+    const sortItem = get(sorting, [0]);
+    const attributeSortItem = get(sortItem, ['attributeSortItem']);
+    if (attributeSortItem) {
+        const identifier = get(attributeSortItem, ['attributeIdentifier']);
+        if (identifier === get(category, 'localIdentifier')) {
+            return get(attributeSortItem, 'direction', null);
+        }
+    }
+    return null;
+}
+
+
 const createPureMetric = (measure, mdObj, measureIndex) => ({
     element: get(measure, ['definition', 'measureDefinition', 'item']),
-    // sort: getMetricSort(get(measure, 'sort')), // TODO use sorting from properties
+    sort: getMeasureSorting(measure, mdObj),
     meta: { measureIndex }
 });
 
 const createDerivedMetric = (measure, mdObj, measureIndex) => {
     const { format } = measure;
-    const sort = get(mdObj, ['properties', 'GdcProperties', 'sorts']); // TODO fix this
+    const sort = getMeasureSorting(measure, mdObj);
     const title = getBaseMetricTitle(measure.title);
 
     const hasher = partial(getGeneratedMetricHash, title, format);
@@ -404,7 +431,7 @@ const createDerivedMetric = (measure, mdObj, measureIndex) => {
     return {
         element,
         definition,
-        sort: getMetricSort(sort),
+        sort,
         meta: {
             measureIndex
         }
@@ -513,10 +540,10 @@ const createContributionPoPMetric = (measure, mdObj, measureIndex) => {
     return result;
 };
 
-const categoryToElement = category =>
+const categoryToElement = (attributesMap, mdObj, category) =>
     ({
-        element: get(category, 'displayForm')
-        // sort: get(category, 'sort') // TODO use sorting from properties
+        element: get(attributesMap, [get(category, 'displayForm'), 'attribute', 'meta', 'uri']),
+        sort: getCategorySorting(category, mdObj)
     });
 
 const attributeFilterToWhere = (f) => {
@@ -648,47 +675,38 @@ export const mdToExecutionConfiguration = (mdObj, options = {}) => {
     };
 };
 
-const REG_URI_OBJ = /\/gdc\/md\/(\S+)\/obj\/\d+/;
-
-function getProjectId(uri) {
-    const uriSplit = REG_URI_OBJ.exec(uri) || [];
-    const projectId = uriSplit[1];
-    return projectId;
-}
-
-function getAttributesMap(categories) {
+function getAttributesMap(projectId, categories) {
     const categoryDisplayForms = categories.map(category => get(category, 'displayForm'));
     if (categoryDisplayForms.length === 0) {
         return Promise.resolve({});
     }
-    const projectId = getProjectId(categoryDisplayForms[0]);
     return getObjects(projectId, categoryDisplayForms).then((displayForms) => {
         const attributeUris = displayForms.map(displayForm => get(displayForm, ['attributeDisplayForm', 'content', 'formOf']));
         return getObjects(projectId, attributeUris).then((attributes) => {
             return displayForms.reduce(
                 (attributesMap, displayForm) =>
                     set(attributesMap,
-                        get(displayForm, ['meta', 'uri']),
-                        attributes.find(attribute => get(attribute, ['attribute', 'meta', 'uri']) === get(displayForm, ['attributeDisplayForm', 'content', 'formOf']))),
+                        [get(displayForm, ['attributeDisplayForm', 'meta', 'uri'])],
+                        attributes.find(attribute => get(attribute, ['attribute', 'meta', 'uri']) === get(displayForm, ['attributeDisplayForm', 'content', 'formOf']))), // TODO will need also type
                 {}
             );
         });
     });
 }
 
-export const newMdToExecutionConfiguration = (mdObj, options = {}) => {
+export const newMdToExecutionConfiguration = (projectId, mdObj, options = {}) => {
     const buckets = get(mdObj, 'buckets', []);
     const measures = getMeasures(buckets);
     const metrics = flatten(map(measures, (measure, index) => getMetricFactory(measure)(measure, buckets, index)));
 
     let categories = getCategories(buckets);
-    return getAttributesMap(categories).then((attributesMap) => {
+    return getAttributesMap(projectId, categories).then((attributesMap) => {
         let filters = getFilters(mdObj);
         if (options.removeDateItems) {
             categories = filter(categories, category => !isDateCategory(category, attributesMap));
             filters = filter(filters, item => !item.dateFilter);
         }
-        categories = map(categories, categoryToElement);
+        categories = map(categories, partial(categoryToElement, attributesMap, mdObj));
 
         const columns = compact(map([...categories, ...metrics], 'element'));
 
