@@ -229,15 +229,23 @@ const isDerived = (measure) => {
     return (aggregation !== '' || !allFiltersEmpty(measure));
 };
 
-function isAttrFilter(measureFilter) {
+function isAttrMeasureFilter(measureFilter) {
     return get(measureFilter, 'positiveAttributeFilter') || get(measureFilter, 'negativeAttributeFilter');
 }
 
-function getAttrFilterExpression(measureFilter) {
+function getAttrTypeFromMap(dfUri, attributesMap) {
+    return get(get(attributesMap, [dfUri], {}), ['attribute', 'content', 'type']);
+}
+
+function getAttrUriFromMap(dfUri, attributesMap) {
+    return get(get(attributesMap, [dfUri], {}), ['attribute', 'meta', 'uri']);
+}
+
+function getAttrFilterExpression(measureFilter, attributesMap) {
     const isNegative = get(measureFilter, 'negativeAttributeFilter', false);
     const detailPath = isNegative ? 'negativeAttributeFilter' : 'positiveAttributeFilter';
     const elementsPath = [detailPath, isNegative ? 'notIn' : 'in'];
-    const attributeUri = get(measureFilter, [detailPath, 'displayForm']); // TODO DF -> attr URI
+    const attributeUri = getAttrUriFromMap(get(measureFilter, [detailPath, 'displayForm']), attributesMap);
     const elements = get(measureFilter, elementsPath, []);
     if (isEmpty(elements)) {
         return null;
@@ -253,31 +261,31 @@ function getDateFilterExpression() {
     return '';
 }
 
-const getFilterExpression = (measureFilter) => {
-    if (isAttrFilter(measureFilter)) {
-        return getAttrFilterExpression(measureFilter);
+const getFilterExpression = (attributesMap, measureFilter) => {
+    if (isAttrMeasureFilter(measureFilter)) {
+        return getAttrFilterExpression(measureFilter, attributesMap);
     }
     return getDateFilterExpression(measureFilter);
 };
 
-const getGeneratedMetricExpression = (item) => {
+const getGeneratedMetricExpression = (item, attributesMap) => {
     const aggregation = getAggregation(item).toUpperCase();
     const objectUri = get(getDefinition(item), 'item');
-    const where = filter(map(getMeasureFilters(item), getFilterExpression), e => !!e);
+    const where = filter(map(getMeasureFilters(item), partial(getFilterExpression, attributesMap)), e => !!e);
 
     return `SELECT ${aggregation ? `${aggregation}([${objectUri}])` : `[${objectUri}]`
     }${notEmpty(where) ? ` WHERE ${where.join(' AND ')}` : ''}`;
 };
 
-const getPercentMetricExpression = ({ visualizationAttribute }, measure) => {
+const getPercentMetricExpression = (category, attributesMap, measure) => {
     let metricExpressionWithoutFilters = `SELECT [${get(getDefinition(measure), 'item')}]`;
 
     if (isDerived(measure)) {
-        metricExpressionWithoutFilters = getGeneratedMetricExpression(omit(measure, ['definition', 'measureDefinition', 'filters']));
+        metricExpressionWithoutFilters = getGeneratedMetricExpression(omit(measure, ['definition', 'measureDefinition', 'filters']), attributesMap);
     }
 
-    const attributeUri = get(visualizationAttribute, 'displayForm'); // TODO DF -> attr URI
-    const whereFilters = filter(map(getMeasureFilters(measure), getFilterExpression), e => !!e);
+    const attributeUri = getAttrUriFromMap(get(category, 'displayForm'), attributesMap);
+    const whereFilters = filter(map(getMeasureFilters(measure), partial(getFilterExpression, attributesMap)), e => !!e);
     const whereExpression = notEmpty(whereFilters) ? ` WHERE ${whereFilters.join(' AND ')}` : '';
 
     return `SELECT (${metricExpressionWithoutFilters}${whereExpression}) / (${metricExpressionWithoutFilters} BY ALL [${attributeUri}]${whereExpression})`;
@@ -301,10 +309,10 @@ function getMeasureType(measure) {
     return 'fact';
 }
 
-const getGeneratedMetricIdentifier = (item, aggregation, expressionCreator, hasher) => {
+const getGeneratedMetricIdentifier = (item, aggregation, expressionCreator, hasher, attributesMap) => {
     const [, , , prjId, , id] = get(getDefinition(item), 'item', '').split('/');
     const identifier = `${prjId}_${id}`;
-    const hash = hasher(expressionCreator(item));
+    const hash = hasher(expressionCreator(item, attributesMap));
     const hasNoFilters = isEmpty(getMeasureFilters(item));
     const type = getMeasureType(item);
 
@@ -347,7 +355,7 @@ function getCategories(buckets) {
 const getFilters = ({ filters }) => filters;
 
 function isDateCategory(category, attributesMap = {}) {
-    return get(get(attributesMap, get(category, 'displayForm'), {}), ['attribute', 'content', 'type']) !== undefined;
+    return getAttrTypeFromMap(get(category, 'displayForm'), attributesMap) !== undefined;
 }
 
 const getDateCategory = (mdObj) => {
@@ -411,18 +419,23 @@ const createPureMetric = (measure, mdObj, measureIndex) => ({
     meta: { measureIndex }
 });
 
-const createDerivedMetric = (measure, mdObj, measureIndex) => {
+const createDerivedMetric = (measure, mdObj, measureIndex, attributesMap) => {
     const { format } = measure;
     const sort = getMeasureSorting(measure, mdObj);
     const title = getBaseMetricTitle(measure.title);
 
     const hasher = partial(getGeneratedMetricHash, title, format);
     const aggregation = getAggregation(measure);
-    const element = getGeneratedMetricIdentifier(measure, aggregation, getGeneratedMetricExpression, hasher);
+    const element = getGeneratedMetricIdentifier(
+        measure,
+        aggregation,
+        getGeneratedMetricExpression,
+        hasher,
+        attributesMap);
     const definition = {
         metricDefinition: {
             identifier: element,
-            expression: getGeneratedMetricExpression(measure),
+            expression: getGeneratedMetricExpression(measure, attributesMap),
             title,
             format
         }
@@ -438,17 +451,17 @@ const createDerivedMetric = (measure, mdObj, measureIndex) => {
     };
 };
 
-const createContributionMetric = (measure, mdObj, measureIndex) => {
+const createContributionMetric = (measure, mdObj, measureIndex, attributesMap) => {
     const category = first(getCategories(mdObj)); // TODO is it always first??
-    const getMetricExpression = partial(getPercentMetricExpression, category);
+    const getMetricExpression = partial(getPercentMetricExpression, category, attributesMap);
     const title = getBaseMetricTitle(get(measure, 'title'));
     const hasher = partial(getGeneratedMetricHash, title, CONTRIBUTION_METRIC_FORMAT);
     return {
         element: getGeneratedMetricIdentifier(measure, 'percent', getMetricExpression, hasher),
         definition: {
             metricDefinition: {
-                identifier: getGeneratedMetricIdentifier(measure, 'percent', getMetricExpression, hasher),
-                expression: getMetricExpression(measure),
+                identifier: getGeneratedMetricIdentifier(measure, 'percent', getMetricExpression, hasher, attributesMap),
+                expression: getMetricExpression(measure, attributesMap),
                 title,
                 format: CONTRIBUTION_METRIC_FORMAT
             }
@@ -542,7 +555,7 @@ const createContributionPoPMetric = (measure, mdObj, measureIndex) => {
 
 const categoryToElement = (attributesMap, mdObj, category) =>
     ({
-        element: get(attributesMap, [get(category, 'displayForm'), 'attribute', 'meta', 'uri']),
+        element: getAttrUriFromMap(get(category, 'displayForm'), attributesMap),
         sort: getCategorySorting(category, mdObj)
     });
 
@@ -675,8 +688,7 @@ export const mdToExecutionConfiguration = (mdObj, options = {}) => {
     };
 };
 
-function getAttributesMap(projectId, categories) {
-    const categoryDisplayForms = categories.map(category => get(category, 'displayForm'));
+function getAttributesMap(projectId, categoryDisplayForms) {
     if (categoryDisplayForms.length === 0) {
         return Promise.resolve({});
     }
@@ -687,20 +699,31 @@ function getAttributesMap(projectId, categories) {
                 (attributesMap, displayForm) =>
                     set(attributesMap,
                         [get(displayForm, ['attributeDisplayForm', 'meta', 'uri'])],
-                        attributes.find(attribute => get(attribute, ['attribute', 'meta', 'uri']) === get(displayForm, ['attributeDisplayForm', 'content', 'formOf']))), // TODO will need also type
+                        attributes.find(attribute => get(attribute, ['attribute', 'meta', 'uri']) === get(displayForm, ['attributeDisplayForm', 'content', 'formOf']))),
                 {}
             );
         });
     });
 }
 
+function getAttrMeasureFilterDf(measureFilter) {
+    return get(measureFilter, ['positiveAttributeFilter', 'displayForm']) ||
+        get(measureFilter, ['negativeAttributeFilter', 'displayForm']);
+}
+
 export const newMdToExecutionConfiguration = (projectId, mdObj, options = {}) => {
     const buckets = get(mdObj, 'buckets', []);
     const measures = getMeasures(buckets);
-    const metrics = flatten(map(measures, (measure, index) => getMetricFactory(measure)(measure, buckets, index)));
-
     let categories = getCategories(buckets);
-    return getAttributesMap(projectId, categories).then((attributesMap) => {
+    const attrMeasureFilters = filter(measures.reduce((filters, measure) =>
+        filters.concat(getMeasureFilters(measure)),
+    []), isAttrMeasureFilter);
+    const attrMeasureFiltersDfs = attrMeasureFilters.map(getAttrMeasureFilterDf);
+    const categoryDfs = categories.map(category => get(category, 'displayForm'));
+    return getAttributesMap(projectId, [...categoryDfs, ...attrMeasureFiltersDfs]).then((attributesMap) => {
+        const metrics = flatten(map(measures, (measure, index) =>
+            getMetricFactory(measure)(measure, buckets, index, attributesMap))
+        );
         let filters = getFilters(mdObj);
         if (options.removeDateItems) {
             categories = filter(categories, category => !isDateCategory(category, attributesMap));
