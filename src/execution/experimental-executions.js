@@ -2,6 +2,7 @@
 import md5 from 'md5';
 import invariant from 'invariant';
 import {
+    cloneDeep,
     compact,
     filter,
     first,
@@ -17,7 +18,6 @@ import {
     assign,
     partial,
     flatten,
-    omit,
     set
 } from 'lodash';
 
@@ -281,7 +281,7 @@ const getPercentMetricExpression = (category, attributesMap, measure) => {
     let metricExpressionWithoutFilters = `SELECT [${get(getDefinition(measure), 'item')}]`;
 
     if (isDerived(measure)) {
-        metricExpressionWithoutFilters = getGeneratedMetricExpression(omit(measure, ['definition', 'measureDefinition', 'filters']), attributesMap);
+        metricExpressionWithoutFilters = getGeneratedMetricExpression(set(cloneDeep(measure), ['definition', 'measureDefinition', 'filters'], []), attributesMap);
     }
 
     const attributeUri = getAttrUriFromMap(get(category, 'displayForm'), attributesMap);
