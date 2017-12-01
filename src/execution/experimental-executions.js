@@ -12,7 +12,6 @@ import {
     every,
     get,
     isEmpty,
-    isString,
     negate,
     last,
     assign,
@@ -188,13 +187,14 @@ const getMetricTitle = (suffix, title) => {
 
 const getBaseMetricTitle = partial(getMetricTitle, '');
 
-const POP_SUFFIX = ' - previous year';
-const getPoPMetricTitle = partial(getMetricTitle, POP_SUFFIX);
-
 const CONTRIBUTION_METRIC_FORMAT = '#,##0.00%';
 
 function getDefinition(measure) {
     return get(measure, ['definition', 'measureDefinition'], {});
+}
+
+function getPoPDefinition(measure) {
+    return get(measure, ['definition', 'popMeasureDefinition'], {});
 }
 
 function getMeasureFilters(measure) {
@@ -291,9 +291,7 @@ const getPercentMetricExpression = (category, attributesMap, measure) => {
     return `SELECT (${metricExpressionWithoutFilters}${whereExpression}) / (${metricExpressionWithoutFilters} BY ALL [${attributeUri}]${whereExpression})`;
 };
 
-const getPoPExpression = (attribute, metricExpression) => {
-    const attributeUri = get(attribute, 'attribute');
-
+const getPoPExpression = (attributeUri, metricExpression) => {
     return `SELECT ${metricExpression} FOR PREVIOUS ([${attributeUri}])`;
 };
 
@@ -330,6 +328,10 @@ function isCategory(bucketItem) {
     return get(bucketItem, 'visualizationAttribute') !== undefined;
 }
 
+function getBuckets(mdObj) {
+    return get(mdObj, 'buckets', []);
+}
+
 function getMeasures(buckets) {
     return buckets.reduce((measuresList, bucket) =>
         get(bucket, 'items').reduce((list, bucketItem) => {
@@ -358,10 +360,8 @@ function isDateCategory(category, attributesMap = {}) {
     return getAttrTypeFromMap(get(category, 'displayForm'), attributesMap) !== undefined;
 }
 
-const getDateCategory = (mdObj) => {
-    const category = find(getCategories(mdObj), isDateCategory);
-
-    return get(category, 'category');
+const getDateCategory = (mdObj, attributesMap) => {
+    return find(getCategories(getBuckets(mdObj)), category => isDateCategory(category, attributesMap));
 };
 
 
@@ -371,43 +371,36 @@ const getDateFilter = (mdObj) => {
     return get(dateFilter, 'dateFilter');
 };
 
-const getDate = mdObj => (getDateCategory(mdObj) || getDateFilter(mdObj));
-
-const getMetricSort = (sort, isPoPMetric) => {
-    if (isString(sort)) {
-        // TODO: backward compatibility, remove when not used plain "sort: asc | desc" in measures
-        return sort;
-    }
-
-    const sortByPoP = get(sort, 'sortByPoP');
-    if ((isPoPMetric && sortByPoP) || (!isPoPMetric && !sortByPoP)) {
-        return get(sort, 'direction');
-    }
-    return null;
-};
+const getDate = (mdObj, attributesMap) => (getDateCategory(mdObj, attributesMap) || getDateFilter(mdObj));
 
 function getMeasureSorting(measure, mdObj) {
-    const sorting = get(mdObj, ['properties', 'GdcProperties', 'sorts']); // TODO check this
-    const sortItem = get(sorting, [0]); // TODO only one sortItem now?
-    const measureSortItem = get(sortItem, ['measureSortItem']);
-    if (measureSortItem) {
-        const identifier = get(measureSortItem, ['locators', 0, 'measureLocatorItem', 'measureIdentifier']); // TODO only one item now?
-        if (identifier === get(measure, 'localIdentifier')) {
-            return get(measureSortItem, 'direction', null);
+    const sorting = get(mdObj, ['properties', 'GdcProperties', 'sorts'], []); // TODO check this
+    const matchedSorting = sorting.find((sortItem) => {
+        const measureSortItem = get(sortItem, ['measureSortItem']);
+        if (measureSortItem) {
+            const identifier = get(measureSortItem, ['locators', 0, 'measureLocatorItem', 'measureIdentifier']); // only one item now, we support only 2d data
+            return identifier === get(measure, 'localIdentifier');
         }
+        return false;
+    });
+    if (matchedSorting) {
+        return get(matchedSorting, 'direction', null);
     }
     return null;
 }
 
 function getCategorySorting(category, mdObj) {
-    const sorting = get(mdObj, ['properties', 'GdcProperties', 'sorts']);
-    const sortItem = get(sorting, [0]);
-    const attributeSortItem = get(sortItem, ['attributeSortItem']);
-    if (attributeSortItem) {
-        const identifier = get(attributeSortItem, ['attributeIdentifier']);
-        if (identifier === get(category, 'localIdentifier')) {
-            return get(attributeSortItem, 'direction', null);
+    const sorting = get(mdObj, ['properties', 'GdcProperties', 'sorts'], []);
+    const matchedSorting = sorting.find((sortItem) => {
+        const attributeSortItem = get(sortItem, ['attributeSortItem']);
+        if (attributeSortItem) {
+            const identifier = get(attributeSortItem, ['attributeIdentifier']);
+            return identifier === get(category, 'localIdentifier');
         }
+        return false;
+    });
+    if (matchedSorting) {
+        return get(matchedSorting, 'direction', null);
     }
     return null;
 }
@@ -452,46 +445,56 @@ const createDerivedMetric = (measure, mdObj, measureIndex, attributesMap) => {
 };
 
 const createContributionMetric = (measure, mdObj, measureIndex, attributesMap) => {
-    const category = first(getCategories(mdObj)); // TODO is it always first??
+    const category = first(getCategories(getBuckets(mdObj))); // TODO is it always first??
     const getMetricExpression = partial(getPercentMetricExpression, category, attributesMap);
     const title = getBaseMetricTitle(get(measure, 'title'));
     const hasher = partial(getGeneratedMetricHash, title, CONTRIBUTION_METRIC_FORMAT);
+    const identifier = getGeneratedMetricIdentifier(measure, 'percent', getMetricExpression, hasher, attributesMap);
     return {
-        element: getGeneratedMetricIdentifier(measure, 'percent', getMetricExpression, hasher),
+        element: identifier,
         definition: {
             metricDefinition: {
-                identifier: getGeneratedMetricIdentifier(measure, 'percent', getMetricExpression, hasher, attributesMap),
+                identifier,
                 expression: getMetricExpression(measure, attributesMap),
                 title,
                 format: CONTRIBUTION_METRIC_FORMAT
             }
         },
-        sort: getMetricSort(get(measure, 'sort')),
+        sort: getMeasureSorting(measure, mdObj),
         meta: {
             measureIndex
         }
     };
 };
 
-const createPoPMetric = (measure, mdObj, measureIndex) => {
-    // TODO fix this
-    const title = getPoPMetricTitle(get(measure, 'title'));
-    const format = get(measure, 'format');
+function getOriginalMeasureForPoP(popMeasure, mdObj) {
+    return getMeasures(getBuckets(mdObj)).find(measure =>
+        get(measure, 'localIdentifier') === get(getPoPDefinition(popMeasure), ['measureIdentifier'])
+    );
+}
+
+const createPoPMetric = (popMeasure, mdObj, measureIndex, attributesMap) => {
+    const title = getBaseMetricTitle(get(popMeasure, 'title'));
+    const format = get(popMeasure, 'format');
     const hasher = partial(getGeneratedMetricHash, title, format);
 
-    const date = getDate(mdObj);
+    // TODO use provided attribute from measure definition
+    // const attributeUri = get(popMeasure, ['definition', 'popMeasureDefinition', 'popAttribute']);
+    const date = getDate(mdObj, attributesMap);
+    const attributeUri = getAttrUriFromMap(get(date, 'displayForm'), attributesMap);
 
-    let generated;
-    let getMetricExpression = partial(getPoPExpression, date, `[${get(measure, 'objectUri')}]`);
+    const originalMeasure = getOriginalMeasureForPoP(popMeasure, mdObj);
 
-    if (isDerived(measure)) {
-        generated = createDerivedMetric(measure, mdObj, measureIndex);
-        getMetricExpression = partial(getPoPExpression, date, `(${get(generated, 'definition.metricDefinition.expression')})`);
+    let getMetricExpression = partial(getPoPExpression, attributeUri, `[${get(getDefinition(originalMeasure), ['item'])}]`);
+
+    if (isDerived(originalMeasure)) {
+        const generated = createDerivedMetric(originalMeasure, mdObj, measureIndex);
+        getMetricExpression = partial(getPoPExpression, attributeUri, `(${get(generated, ['definition', 'metricDefinition', 'expression'])})`);
     }
 
-    const identifier = getGeneratedMetricIdentifier(measure, 'pop', getMetricExpression, hasher);
+    const identifier = getGeneratedMetricIdentifier(originalMeasure, 'pop', getMetricExpression, hasher, attributesMap);
 
-    const result = [{
+    return {
         element: identifier,
         definition: {
             metricDefinition: {
@@ -501,37 +504,33 @@ const createPoPMetric = (measure, mdObj, measureIndex) => {
                 format
             }
         },
-        sort: getMetricSort(get(measure, 'sort'), true),
+        sort: getMeasureSorting(popMeasure, mdObj),
         meta: {
             measureIndex,
             isPoP: true
         }
-    }];
-
-    if (generated) {
-        result.push(generated);
-    } else {
-        result.push(createPureMetric(measure, mdObj, measureIndex));
-    }
-
-    return result;
+    };
 };
 
-const createContributionPoPMetric = (measure, mdObj, measureIndex) => {
-    // TODO fix this
-    const date = getDate(mdObj);
+const createContributionPoPMetric = (popMeasure, mdObj, measureIndex, attributesMap) => {
+    // TODO use provided attribute from measure definition
+    // const attributeUri = get(popMeasure, ['definition', 'popMeasureDefinition', 'popAttribute']);
+    const date = getDate(mdObj, attributesMap);
+    const attributeUri = getAttrUriFromMap(get(date, 'displayForm'), attributesMap);
 
-    const generated = createContributionMetric(measure, mdObj, measureIndex);
-    const title = getPoPMetricTitle(get(measure, 'title'));
+    const originalMeasure = getOriginalMeasureForPoP(popMeasure, mdObj);
+
+    const generated = createContributionMetric(originalMeasure, mdObj, measureIndex, attributesMap);
+    const title = getBaseMetricTitle(get(popMeasure, 'title'));
 
     const format = CONTRIBUTION_METRIC_FORMAT;
     const hasher = partial(getGeneratedMetricHash, title, format);
 
-    const getMetricExpression = partial(getPoPExpression, date, `(${get(generated, 'definition.metricDefinition.expression')})`);
+    const getMetricExpression = partial(getPoPExpression, attributeUri, `(${get(generated, 'definition.metricDefinition.expression')})`);
 
-    const identifier = getGeneratedMetricIdentifier(measure, 'pop', getMetricExpression, hasher);
+    const identifier = getGeneratedMetricIdentifier(originalMeasure, 'pop', getMetricExpression, hasher, attributesMap);
 
-    const result = [{
+    return {
         element: identifier,
         definition: {
             metricDefinition: {
@@ -541,16 +540,12 @@ const createContributionPoPMetric = (measure, mdObj, measureIndex) => {
                 format
             }
         },
-        sort: getMetricSort(get(measure, 'sort'), true),
+        sort: getMeasureSorting(),
         meta: {
             measureIndex,
             isPoP: true
         }
-    }];
-
-    result.push(generated);
-
-    return result;
+    };
 };
 
 const categoryToElement = (attributesMap, mdObj, category) =>
@@ -595,12 +590,19 @@ const dateFilterToWhere = (f) => {
 
 const isPoP = ({ definition }) => get(definition, 'popMeasureDefinition') !== undefined;
 const isContribution = ({ definition }) => get(definition, ['measureDefinition', 'computeRatio']);
+const isPoPContribution = (popMeasure, mdObj) => {
+    if (isPoP(popMeasure)) {
+        const originalMeasure = getOriginalMeasureForPoP(popMeasure, mdObj);
+        return isContribution(originalMeasure);
+    }
+    return false;
+};
 const isCalculatedMeasure = ({ definition }) => get(definition, ['measureDefinition', 'aggregation']) === undefined;
 
 const rules = new Rules();
 
 rules.addRule(
-    [isPoP, isContribution],
+    [isPoPContribution],
     createContributionPoPMetric
 );
 
@@ -624,8 +626,8 @@ rules.addRule(
     createPureMetric
 );
 
-function getMetricFactory(measure) {
-    const factory = rules.match(measure);
+function getMetricFactory(measure, mdObj) {
+    const factory = rules.match(measure, mdObj);
 
     invariant(factory, `Unknown factory for: ${measure}`);
 
@@ -712,7 +714,7 @@ function getAttrMeasureFilterDf(measureFilter) {
 }
 
 export const newMdToExecutionConfiguration = (projectId, mdObj, options = {}) => {
-    const buckets = get(mdObj, 'buckets', []);
+    const buckets = getBuckets(mdObj);
     const measures = getMeasures(buckets);
     let categories = getCategories(buckets);
     const attrMeasureFilters = filter(measures.reduce((filters, measure) =>
@@ -722,7 +724,7 @@ export const newMdToExecutionConfiguration = (projectId, mdObj, options = {}) =>
     const categoryDfs = categories.map(category => get(category, 'displayForm'));
     return getAttributesMap(projectId, [...categoryDfs, ...attrMeasureFiltersDfs]).then((attributesMap) => {
         const metrics = flatten(map(measures, (measure, index) =>
-            getMetricFactory(measure)(measure, buckets, index, attributesMap))
+            getMetricFactory(measure, mdObj)(measure, mdObj, index, attributesMap))
         );
         let filters = getFilters(mdObj);
         if (options.removeDateItems) {
@@ -732,7 +734,13 @@ export const newMdToExecutionConfiguration = (projectId, mdObj, options = {}) =>
         categories = map(categories, partial(categoryToElement, attributesMap, mdObj));
 
         const columns = compact(map([...categories, ...metrics], 'element'));
-
+        console.log({
+            columns,
+            orderBy: getOrderBy(metrics, categories),
+            definitions: sortDefinitions(compact(map(metrics, 'definition'))),
+            where: columns.length ? getWhere(filters) : {},
+            metricMappings: map(metrics, m => ({ element: m.element, ...m.meta }))
+        });
         return {
             columns,
             orderBy: getOrderBy(metrics, categories),
@@ -762,6 +770,7 @@ const getOriginalMetricFormats = (mdObj) => {
     ));
 };
 
+// TODO switch this to new MD obj
 export const getDataForVis = (projectId, mdObj, settings) => {
     return getOriginalMetricFormats(mdObj).then((measures) => {
         const metadata = mdObj;
