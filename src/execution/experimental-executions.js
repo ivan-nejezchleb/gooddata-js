@@ -734,13 +734,6 @@ export const newMdToExecutionConfiguration = (projectId, mdObj, options = {}) =>
         categories = map(categories, partial(categoryToElement, attributesMap, mdObj));
 
         const columns = compact(map([...categories, ...metrics], 'element'));
-        console.log({
-            columns,
-            orderBy: getOrderBy(metrics, categories),
-            definitions: sortDefinitions(compact(map(metrics, 'definition'))),
-            where: columns.length ? getWhere(filters) : {},
-            metricMappings: map(metrics, m => ({ element: m.element, ...m.meta }))
-        });
         return {
             columns,
             orderBy: getOrderBy(metrics, categories),
