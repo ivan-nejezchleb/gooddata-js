@@ -308,7 +308,7 @@ function getMeasureType(measure) {
 }
 
 const getGeneratedMetricIdentifier = (item, aggregation, expressionCreator, hasher, attributesMap) => {
-    const [, , , prjId, , id] = get(getDefinition(item), 'item', '').split('/');
+    const [, , , prjId, , id] = get(getDefinition(item), 'item.uri', '').split('/');
     const identifier = `${prjId}_${id}`;
     const hash = hasher(expressionCreator(item, attributesMap));
     const hasNoFilters = isEmpty(getMeasureFilters(item));
