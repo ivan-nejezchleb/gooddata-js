@@ -245,7 +245,7 @@ function getAttrFilterExpression(measureFilter, attributesMap) {
     const isNegative = get(measureFilter, 'negativeAttributeFilter', false);
     const detailPath = isNegative ? 'negativeAttributeFilter' : 'positiveAttributeFilter';
     const elementsPath = [detailPath, isNegative ? 'notIn' : 'in'];
-    const attributeUri = getAttrUriFromMap(get(measureFilter, [detailPath, 'displayForm']), attributesMap);
+    const attributeUri = getAttrUriFromMap(get(measureFilter, [detailPath, 'displayForm', 'uri']), attributesMap);
     const elements = get(measureFilter, elementsPath, []);
     if (isEmpty(elements)) {
         return null;
@@ -270,7 +270,7 @@ const getFilterExpression = (attributesMap, measureFilter) => {
 
 const getGeneratedMetricExpression = (item, attributesMap) => {
     const aggregation = getAggregation(item).toUpperCase();
-    const objectUri = get(getDefinition(item), 'item');
+    const objectUri = get(getDefinition(item), 'item.uri');
     const where = filter(map(getMeasureFilters(item), partial(getFilterExpression, attributesMap)), e => !!e);
 
     return `SELECT ${aggregation ? `${aggregation}([${objectUri}])` : `[${objectUri}]`
@@ -278,7 +278,7 @@ const getGeneratedMetricExpression = (item, attributesMap) => {
 };
 
 const getPercentMetricExpression = (category, attributesMap, measure) => {
-    let metricExpressionWithoutFilters = `SELECT [${get(getDefinition(measure), 'item')}]`;
+    let metricExpressionWithoutFilters = `SELECT [${get(getDefinition(measure), 'item.uri')}]`;
 
     if (isDerived(measure)) {
         metricExpressionWithoutFilters = getGeneratedMetricExpression(set(cloneDeep(measure), ['definition', 'measureDefinition', 'filters'], []), attributesMap);
