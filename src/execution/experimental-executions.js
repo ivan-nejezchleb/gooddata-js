@@ -407,7 +407,7 @@ function getCategorySorting(category, mdObj) {
 
 
 const createPureMetric = (measure, mdObj, measureIndex) => ({
-    element: get(measure, ['definition', 'measureDefinition', 'item']),
+    element: get(measure, ['definition', 'measureDefinition', 'item', 'uri']),
     sort: getMeasureSorting(measure, mdObj),
     meta: { measureIndex }
 });
@@ -550,7 +550,7 @@ const createContributionPoPMetric = (popMeasure, mdObj, measureIndex, attributes
 
 const categoryToElement = (attributesMap, mdObj, category) =>
     ({
-        element: getAttrUriFromMap(get(category, 'displayForm'), attributesMap),
+        element: getAttrUriFromMap(get(category, 'displayForm.uri'), attributesMap),
         sort: getCategorySorting(category, mdObj)
     });
 
@@ -709,8 +709,8 @@ function getAttributesMap(projectId, categoryDisplayForms) {
 }
 
 function getAttrMeasureFilterDf(measureFilter) {
-    return get(measureFilter, ['positiveAttributeFilter', 'displayForm']) ||
-        get(measureFilter, ['negativeAttributeFilter', 'displayForm']);
+    return get(measureFilter, ['positiveAttributeFilter', 'displayForm', 'uri']) ||
+        get(measureFilter, ['negativeAttributeFilter', 'displayForm', 'uri']);
 }
 
 export const newMdToExecutionConfiguration = (projectId, mdObj, options = {}) => {
@@ -721,7 +721,7 @@ export const newMdToExecutionConfiguration = (projectId, mdObj, options = {}) =>
         filters.concat(getMeasureFilters(measure)),
     []), isAttrMeasureFilter);
     const attrMeasureFiltersDfs = attrMeasureFilters.map(getAttrMeasureFilterDf);
-    const categoryDfs = categories.map(category => get(category, 'displayForm'));
+    const categoryDfs = categories.map(category => get(category, 'displayForm.uri'));
     return getAttributesMap(projectId, [...categoryDfs, ...attrMeasureFiltersDfs]).then((attributesMap) => {
         const metrics = flatten(map(measures, (measure, index) =>
             getMetricFactory(measure, mdObj)(measure, mdObj, index, attributesMap))
