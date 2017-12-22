@@ -284,7 +284,7 @@ const getPercentMetricExpression = (category, attributesMap, measure) => {
         metricExpressionWithoutFilters = getGeneratedMetricExpression(set(cloneDeep(measure), ['definition', 'measureDefinition', 'filters'], []), attributesMap);
     }
 
-    const attributeUri = getAttrUriFromMap(get(category, 'displayForm'), attributesMap);
+    const attributeUri = getAttrUriFromMap(get(category, 'displayForm.uri'), attributesMap);
     const whereFilters = filter(map(getMeasureFilters(measure), partial(getFilterExpression, attributesMap)), e => !!e);
     const whereExpression = notEmpty(whereFilters) ? ` WHERE ${whereFilters.join(' AND ')}` : '';
 
