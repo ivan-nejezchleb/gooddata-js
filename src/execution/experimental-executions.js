@@ -478,14 +478,10 @@ const createPoPMetric = (popMeasure, mdObj, measureIndex, attributesMap) => {
     const format = get(popMeasure, 'format');
     const hasher = partial(getGeneratedMetricHash, title, format);
 
-    // TODO use provided attribute from measure definition
-    // const attributeUri = get(popMeasure, ['definition', 'popMeasureDefinition', 'popAttribute']);
-    const date = getDate(mdObj, attributesMap);
-    const attributeUri = getAttrUriFromMap(get(date, 'displayForm'), attributesMap);
-
+    const attributeUri = get(popMeasure, 'definition.popMeasureDefinition.popAttribute.uri');
     const originalMeasure = getOriginalMeasureForPoP(popMeasure, mdObj);
 
-    let getMetricExpression = partial(getPoPExpression, attributeUri, `[${get(getDefinition(originalMeasure), ['item'])}]`);
+    let getMetricExpression = partial(getPoPExpression, attributeUri, `[${get(getDefinition(originalMeasure), ['item', 'uri'])}]`);
 
     if (isDerived(originalMeasure)) {
         const generated = createDerivedMetric(originalMeasure, mdObj, measureIndex);
