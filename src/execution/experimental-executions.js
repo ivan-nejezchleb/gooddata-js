@@ -371,7 +371,7 @@ const getDateFilter = (mdObj) => {
     return get(dateFilter, 'dateFilter');
 };
 
-const getDate = (mdObj, attributesMap) => (getDateCategory(mdObj, attributesMap) || getDateFilter(mdObj));
+// const getDate = (mdObj, attributesMap) => (getDateCategory(mdObj, attributesMap) || getDateFilter(mdObj));
 
 function getMeasureSorting(measure, mdObj) {
     const sorting = get(mdObj, ['properties', 'GdcProperties', 'sorts'], []); // TODO check this
@@ -509,10 +509,7 @@ const createPoPMetric = (popMeasure, mdObj, measureIndex, attributesMap) => {
 };
 
 const createContributionPoPMetric = (popMeasure, mdObj, measureIndex, attributesMap) => {
-    // TODO use provided attribute from measure definition
-    // const attributeUri = get(popMeasure, ['definition', 'popMeasureDefinition', 'popAttribute']);
-    const date = getDate(mdObj, attributesMap);
-    const attributeUri = getAttrUriFromMap(get(date, 'displayForm'), attributesMap);
+    const attributeUri = get(popMeasure, 'definition.popMeasureDefinition.popAttribute.uri');
 
     const originalMeasure = getOriginalMeasureForPoP(popMeasure, mdObj);
 
