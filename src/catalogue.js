@@ -1,6 +1,6 @@
 import { get, find, omit, cloneDeep } from 'lodash';
 import { post, parseJSON } from './xhr';
-import { newMdToExecutionConfiguration } from './execution/experimental-executions';
+import { mdToExecutionConfiguration } from './execution/experimental-executions';
 
 const REQUEST_DEFAULTS = {
     types: ['attribute', 'metric', 'fact'],
@@ -15,7 +15,7 @@ const LOAD_DATE_DATASET_DEFAULTS = {
 };
 
 function bucketItemsToExecConfig(projectId, mdObj, options = {}) {
-    return newMdToExecutionConfiguration(projectId, mdObj, options).then((executionConfig) => {
+    return mdToExecutionConfiguration(projectId, mdObj, options).then((executionConfig) => {
         const definitions = get(executionConfig, 'definitions');
 
         return get(executionConfig, 'columns').map((column) => {
@@ -106,12 +106,12 @@ export function loadDateDataSets(projectId, options) {
     const mdObj = get(cloneDeep(options), 'bucketItems');
     let bucketItemsPromise;
     if (mdObj) {
-        bucketItemsPromise = bucketItemsToExecConfig(projectId, mdObj, { removeDateItems: true });
+        bucketItemsPromise = bucketItemsToExecConfig(projectId, mdObj, { removeDateItems: true, attributesMap: get(options, 'attributesMap') });
     } else {
         bucketItemsPromise = Promise.resolve();
     }
     return bucketItemsPromise.then((bucketItems) => {
-        const omittedOptions = ['filter', 'types', 'paging', 'dataSetIdentifier', 'returnAllDateDataSets', 'returnAllRelatedDateDataSets'];
+        const omittedOptions = ['filter', 'types', 'paging', 'dataSetIdentifier', 'returnAllDateDataSets', 'returnAllRelatedDateDataSets', 'attributesMap'];
         // includeObjectsWithTags has higher priority than excludeObjectsWithTags,
         // so when present omit excludeObjectsWithTags
         if (options.includeObjectsWithTags) {

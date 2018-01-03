@@ -337,179 +337,296 @@ describe('execution', () => {
             let mdObj;
             beforeEach(() => {
                 mdObj = {
-                    buckets: {
-                        measures: [
-                            {
-                                measure: {
-                                    type: 'fact',
-                                    aggregation: 'sum',
-                                    objectUri: '/gdc/md/qamfsd9cw85e53mcqs74k8a0mwbf5gc2/obj/1144',
-                                    title: 'Sum of Amount',
-                                    format: '#,##0.00',
-                                    measureFilters: [
-                                        {
-                                            listAttributeFilter: {
-                                                attribute: '/gdc/md/qamfsd9cw85e53mcqs74k8a0mwbf5gc2/obj/949',
-                                                displayForm: '/gdc/md/qamfsd9cw85e53mcqs74k8a0mwbf5gc2/obj/952',
-                                                default: {
-                                                    negativeSelection: false,
-                                                    attributeElements: [
-                                                        '/gdc/md/qamfsd9cw85e53mcqs74k8a0mwbf5gc2/obj/949/elements?id=168284',
-                                                        '/gdc/md/qamfsd9cw85e53mcqs74k8a0mwbf5gc2/obj/949/elements?id=168282'
-                                                    ]
+                    visualizationClass: {
+                        uri: 'xyz'
+                    },
+                    buckets: [
+                        {
+                            localIdentifier: 'measures',
+                            items: [
+                                {
+                                    measure: {
+                                        localIdentifier: 'm1',
+                                        definition: {
+                                            measureDefinition: {
+                                                item: {
+                                                    uri: '/gdc/md/qamfsd9cw85e53mcqs74k8a0mwbf5gc2/obj/1144'
+                                                },
+                                                aggregation: 'sum',
+                                                filters: [
+                                                    {
+                                                        positiveAttributeFilter: {
+                                                            displayForm: {
+                                                                uri: '/gdc/md/qamfsd9cw85e53mcqs74k8a0mwbf5gc2/obj/952'
+                                                            },
+                                                            in: [
+                                                                '/gdc/md/qamfsd9cw85e53mcqs74k8a0mwbf5gc2/obj/949/elements?id=168284',
+                                                                '/gdc/md/qamfsd9cw85e53mcqs74k8a0mwbf5gc2/obj/949/elements?id=168282'
+                                                            ]
+                                                        }
+                                                    }
+                                                ]
+                                            }
+                                        },
+                                        title: 'Sum of Amount',
+                                        format: '#,##0.00'
+                                    }
+                                },
+                                {
+                                    measure: {
+                                        localIdentifier: 'm2',
+                                        definition: {
+                                            measureDefinition: {
+                                                item: {
+                                                    uri: '/gdc/md/qamfsd9cw85e53mcqs74k8a0mwbf5gc2/obj/1244'
+                                                },
+                                                aggregation: 'count'
+                                            }
+                                        },
+                                        title: 'Count of Activity',
+                                        format: '#,##0.00'
+                                    }
+                                },
+                                {
+                                    measure: {
+                                        localIdentifier: 'm3',
+                                        definition: {
+                                            measureDefinition: {
+                                                item: {
+                                                    uri: '/gdc/md/qamfsd9cw85e53mcqs74k8a0mwbf5gc2/obj/1556'
                                                 }
                                             }
-                                        }
-                                    ],
-                                    sort: 'desc'
-                                }
-                            },
-                            {
-                                measure: {
-                                    type: 'attribute',
-                                    aggregation: 'count',
-                                    objectUri: '/gdc/md/qamfsd9cw85e53mcqs74k8a0mwbf5gc2/obj/1244',
-                                    title: 'Count of Activity',
-                                    format: '#,##0.00',
-                                    measureFilters: []
-                                }
-                            },
-                            {
-                                measure: {
-                                    type: 'metric',
-                                    objectUri: '/gdc/md/qamfsd9cw85e53mcqs74k8a0mwbf5gc2/obj/1556',
-                                    title: 'Probability BOP',
-                                    format: '#,##0.00',
-                                    measureFilters: []
-                                }
-                            },
-                            {
-                                measure: {
-                                    type: 'metric',
-                                    objectUri: '/gdc/md/qamfsd9cw85e53mcqs74k8a0mwbf5gc2/obj/2825',
-                                    title: '# of Opportunities (Account: 1 Source Consulting, 1-800 Postcards, 1-800 We Answer, 1-888-OhioComp, 14 West)',
-                                    format: '#,##0',
-                                    measureFilters: [
-                                        {
-                                            listAttributeFilter: {
-                                                attribute: '/gdc/md/qamfsd9cw85e53mcqs74k8a0mwbf5gc2/obj/969',
-                                                displayForm: '/gdc/md/qamfsd9cw85e53mcqs74k8a0mwbf5gc2/obj/970',
-                                                default: {
-                                                    negativeSelection: false,
-                                                    attributeElements: [
-                                                        '/gdc/md/qamfsd9cw85e53mcqs74k8a0mwbf5gc2/obj/969/elements?id=961042',
-                                                        '/gdc/md/qamfsd9cw85e53mcqs74k8a0mwbf5gc2/obj/969/elements?id=961038',
-                                                        '/gdc/md/qamfsd9cw85e53mcqs74k8a0mwbf5gc2/obj/969/elements?id=958079',
-                                                        '/gdc/md/qamfsd9cw85e53mcqs74k8a0mwbf5gc2/obj/969/elements?id=961044',
-                                                        '/gdc/md/qamfsd9cw85e53mcqs74k8a0mwbf5gc2/obj/969/elements?id=961046'
-                                                    ]
-                                                }
+                                        },
+                                        title: 'Probability BOP',
+                                        format: '#,##0.00'
+                                    }
+                                },
+                                {
+                                    measure: {
+                                        localIdentifier: 'm4',
+                                        definition: {
+                                            measureDefinition: {
+                                                item: {
+                                                    uri: '/gdc/md/qamfsd9cw85e53mcqs74k8a0mwbf5gc2/obj/2825'
+                                                },
+                                                filters: [
+                                                    {
+                                                        positiveAttributeFilter: {
+                                                            displayForm: {
+                                                                uri: '/gdc/md/qamfsd9cw85e53mcqs74k8a0mwbf5gc2/obj/970'
+                                                            },
+                                                            in: [
+                                                                '/gdc/md/qamfsd9cw85e53mcqs74k8a0mwbf5gc2/obj/969/elements?id=961042',
+                                                                '/gdc/md/qamfsd9cw85e53mcqs74k8a0mwbf5gc2/obj/969/elements?id=961038',
+                                                                '/gdc/md/qamfsd9cw85e53mcqs74k8a0mwbf5gc2/obj/969/elements?id=958079',
+                                                                '/gdc/md/qamfsd9cw85e53mcqs74k8a0mwbf5gc2/obj/969/elements?id=961044',
+                                                                '/gdc/md/qamfsd9cw85e53mcqs74k8a0mwbf5gc2/obj/969/elements?id=961046'
+                                                            ]
+                                                        }
+                                                    }
+                                                ]
                                             }
+                                        },
+                                        title: '# of Opportunities (Account: 1 Source Consulting, 1-800 Postcards, 1-800 We Answer, 1-888-OhioComp, 14 West)',
+                                        format: '#,##0'
+                                    }
+                                }]
+                        },
+                        {
+                            localIdentifier: 'attribute',
+                            items: [
+                                {
+                                    visualizationAttribute: {
+                                        localIdentifier: 'a1',
+                                        displayForm: {
+                                            uri: '/gdc/md/qamfsd9cw85e53mcqs74k8a0mwbf5gc2/obj/1028'
                                         }
+                                    }
+                                }
+                            ]
+                        }
+                    ],
+                    filters: [
+                        {
+                            positiveAttributeFilter: {
+                                displayForm: {
+                                    uri: '/gdc/md/qamfsd9cw85e53mcqs74k8a0mwbf5gc2/obj/1028'
+                                },
+                                in: [
+                                    '/gdc/md/qamfsd9cw85e53mcqs74k8a0mwbf5gc2/obj/1025/elements?id=1243',
+                                    '/gdc/md/qamfsd9cw85e53mcqs74k8a0mwbf5gc2/obj/1025/elements?id=1242',
+                                    '/gdc/md/qamfsd9cw85e53mcqs74k8a0mwbf5gc2/obj/1025/elements?id=1241',
+                                    '/gdc/md/qamfsd9cw85e53mcqs74k8a0mwbf5gc2/obj/1025/elements?id=1240',
+                                    '/gdc/md/qamfsd9cw85e53mcqs74k8a0mwbf5gc2/obj/1025/elements?id=1239',
+                                    '/gdc/md/qamfsd9cw85e53mcqs74k8a0mwbf5gc2/obj/1025/elements?id=1238',
+                                    '/gdc/md/qamfsd9cw85e53mcqs74k8a0mwbf5gc2/obj/1025/elements?id=1236'
+                                ]
+                            }
+                        }, {
+                            relativeDateFilter: {
+                                dataSet: {
+                                    uri: '/gdc/md/qamfsd9cw85e53mcqs74k8a0mwbf5gc2/obj/16561'
+                                },
+                                granularity: 'GDC.time.week',
+                                from: -3,
+                                to: 0
+                            }
+                        }
+                    ]
+                };
+
+                const displayForms = [
+                    {
+                        attributeDisplayForm: {
+                            content: {
+                                formOf: '/gdc/md/qamfsd9cw85e53mcqs74k8a0mwbf5gc2/obj/1025'
+                            },
+                            meta: {
+                                uri: '/gdc/md/qamfsd9cw85e53mcqs74k8a0mwbf5gc2/obj/1028'
+                            }
+                        }
+                    },
+                    {
+                        attributeDisplayForm: {
+                            content: {
+                                formOf: '/gdc/md/qamfsd9cw85e53mcqs74k8a0mwbf5gc2/obj/949'
+                            },
+                            meta: {
+                                uri: '/gdc/md/qamfsd9cw85e53mcqs74k8a0mwbf5gc2/obj/952'
+                            }
+                        }
+                    },
+                    {
+                        attributeDisplayForm: {
+                            content: {
+                                formOf: '/gdc/md/qamfsd9cw85e53mcqs74k8a0mwbf5gc2/obj/969'
+                            },
+                            meta: {
+                                uri: '/gdc/md/qamfsd9cw85e53mcqs74k8a0mwbf5gc2/obj/970'
+                            }
+                        }
+                    }
+                ];
+                const attributeObjects = [
+                    {
+                        attribute: {
+                            content: {
+                                type: 'attribute'
+                            },
+                            meta: {
+                                uri: '/gdc/md/qamfsd9cw85e53mcqs74k8a0mwbf5gc2/obj/1025'
+                            }
+                        }
+                    },
+                    {
+                        attribute: {
+                            content: {
+                                type: 'attribute'
+                            },
+                            meta: {
+                                uri: '/gdc/md/qamfsd9cw85e53mcqs74k8a0mwbf5gc2/obj/949'
+                            }
+                        }
+                    },
+                    {
+                        attribute: {
+                            content: {
+                                type: 'attribute'
+                            },
+                            meta: {
+                                uri: '/gdc/md/qamfsd9cw85e53mcqs74k8a0mwbf5gc2/obj/969'
+                            }
+                        }
+                    }
+                ];
+                let callCount = 0;
+                const twoCallsMatcher = () => {
+                    if (callCount === 0) {
+                        callCount = 1;
+                        return {
+                            status: 200,
+                            body: JSON.stringify({
+                                objects: {
+                                    items: displayForms
+                                }
+                            })
+                        };
+                    }
+
+                    return {
+                        status: 200,
+                        body: JSON.stringify({
+                            objects: {
+                                items: attributeObjects
+                            }
+                        })
+                    };
+                };
+                fetchMock.mock(
+                    '/gdc/md/qamfsd9cw85e53mcqs74k8a0mwbf5gc2/objects/get',
+                    twoCallsMatcher
+                );
+            });
+
+            it('creates proper configuration for execution', () => {
+                return ex.mdToExecutionConfiguration('qamfsd9cw85e53mcqs74k8a0mwbf5gc2', mdObj).then((execConfig) => {
+                    expectColumns([
+                        '/gdc/md/qamfsd9cw85e53mcqs74k8a0mwbf5gc2/obj/1028',
+                        'fact_qamfsd9cw85e53mcqs74k8a0mwbf5gc2_1144.generated.b9f95d95adbeac03870b764f8b2c3402_filtered_sum',
+                        'attribute_qamfsd9cw85e53mcqs74k8a0mwbf5gc2_1244.generated.a865b88e507b9390e2175b79e1d6252f_count',
+                        '/gdc/md/qamfsd9cw85e53mcqs74k8a0mwbf5gc2/obj/1556',
+                        'metric_qamfsd9cw85e53mcqs74k8a0mwbf5gc2_2825.generated.3812d81c1c1609700e47fc800e85bfac_filtered_base'
+                    ], execConfig);
+
+                    expectMetricDefinition({
+                        identifier: 'fact_qamfsd9cw85e53mcqs74k8a0mwbf5gc2_1144.generated.b9f95d95adbeac03870b764f8b2c3402_filtered_sum',
+                        expression: 'SELECT SUM([/gdc/md/qamfsd9cw85e53mcqs74k8a0mwbf5gc2/obj/1144]) WHERE [/gdc/md/qamfsd9cw85e53mcqs74k8a0mwbf5gc2/obj/949] IN ([/gdc/md/qamfsd9cw85e53mcqs74k8a0mwbf5gc2/obj/949/elements?id=168284],[/gdc/md/qamfsd9cw85e53mcqs74k8a0mwbf5gc2/obj/949/elements?id=168282])',
+                        title: 'Sum of Amount',
+                        format: '#,##0.00'
+                    }, execConfig);
+
+                    expectMetricDefinition({
+                        identifier: 'attribute_qamfsd9cw85e53mcqs74k8a0mwbf5gc2_1244.generated.a865b88e507b9390e2175b79e1d6252f_count',
+                        expression: 'SELECT COUNT([/gdc/md/qamfsd9cw85e53mcqs74k8a0mwbf5gc2/obj/1244])',
+                        title: 'Count of Activity',
+                        format: '#,##0.00'
+                    }, execConfig);
+
+                    expectMetricDefinition({
+                        identifier: 'metric_qamfsd9cw85e53mcqs74k8a0mwbf5gc2_2825.generated.3812d81c1c1609700e47fc800e85bfac_filtered_base',
+                        expression: 'SELECT [/gdc/md/qamfsd9cw85e53mcqs74k8a0mwbf5gc2/obj/2825] WHERE [/gdc/md/qamfsd9cw85e53mcqs74k8a0mwbf5gc2/obj/969] IN ([/gdc/md/qamfsd9cw85e53mcqs74k8a0mwbf5gc2/obj/969/elements?id=961042],[/gdc/md/qamfsd9cw85e53mcqs74k8a0mwbf5gc2/obj/969/elements?id=961038],[/gdc/md/qamfsd9cw85e53mcqs74k8a0mwbf5gc2/obj/969/elements?id=958079],[/gdc/md/qamfsd9cw85e53mcqs74k8a0mwbf5gc2/obj/969/elements?id=961044],[/gdc/md/qamfsd9cw85e53mcqs74k8a0mwbf5gc2/obj/969/elements?id=961046])',
+                        title: '# of Opportunities (Account: 1 Source Consulting, 1-800 Postcards, 1-800 We Answer, 1-888-OhioComp, 14 West)',
+                        format: '#,##0'
+                    }, execConfig);
+
+                    expectWhereCondition({
+                        $and: [
+                            {
+                                '/gdc/md/qamfsd9cw85e53mcqs74k8a0mwbf5gc2/obj/1028': {
+                                    $in: [
+                                        { id: '1243' },
+                                        { id: '1242' },
+                                        { id: '1241' },
+                                        { id: '1240' },
+                                        { id: '1239' },
+                                        { id: '1238' },
+                                        { id: '1236' }
                                     ]
                                 }
                             }
                         ],
-                        categories: [
-                            {
-                                category: {
-                                    type: 'attribute',
-                                    collection: 'attribute',
-                                    displayForm: '/gdc/md/qamfsd9cw85e53mcqs74k8a0mwbf5gc2/obj/1028',
-                                    sort: 'asc'
-                                }
-                            }
-                        ],
-                        filters: [
-                            {
-                                listAttributeFilter: {
-                                    attribute: '/gdc/md/qamfsd9cw85e53mcqs74k8a0mwbf5gc2/obj/1025',
-                                    displayForm: '/gdc/md/qamfsd9cw85e53mcqs74k8a0mwbf5gc2/obj/1028',
-                                    default: {
-                                        negativeSelection: false,
-                                        attributeElements: [
-                                            '/gdc/md/qamfsd9cw85e53mcqs74k8a0mwbf5gc2/obj/1025/elements?id=1243',
-                                            '/gdc/md/qamfsd9cw85e53mcqs74k8a0mwbf5gc2/obj/1025/elements?id=1242',
-                                            '/gdc/md/qamfsd9cw85e53mcqs74k8a0mwbf5gc2/obj/1025/elements?id=1241',
-                                            '/gdc/md/qamfsd9cw85e53mcqs74k8a0mwbf5gc2/obj/1025/elements?id=1240',
-                                            '/gdc/md/qamfsd9cw85e53mcqs74k8a0mwbf5gc2/obj/1025/elements?id=1239',
-                                            '/gdc/md/qamfsd9cw85e53mcqs74k8a0mwbf5gc2/obj/1025/elements?id=1238',
-                                            '/gdc/md/qamfsd9cw85e53mcqs74k8a0mwbf5gc2/obj/1025/elements?id=1236'
-                                        ]
-                                    }
-                                }
-                            }, {
-                                dateFilter: {
-                                    dimension: '/gdc/md/qamfsd9cw85e53mcqs74k8a0mwbf5gc2/obj/16561',
-                                    granularity: 'GDC.time.week',
-                                    from: -3,
-                                    to: 0
-                                }
-                            }
-                        ]
-                    }
-                };
-            });
-
-            it('creates proper configuration for execution', () => {
-                const execConfig = ex.mdToExecutionConfiguration(mdObj);
-
-                expectColumns([
-                    '/gdc/md/qamfsd9cw85e53mcqs74k8a0mwbf5gc2/obj/1028',
-                    'fact_qamfsd9cw85e53mcqs74k8a0mwbf5gc2_1144.generated.b9f95d95adbeac03870b764f8b2c3402_filtered_sum',
-                    'attribute_qamfsd9cw85e53mcqs74k8a0mwbf5gc2_1244.generated.a865b88e507b9390e2175b79e1d6252f_count',
-                    '/gdc/md/qamfsd9cw85e53mcqs74k8a0mwbf5gc2/obj/1556',
-                    'metric_qamfsd9cw85e53mcqs74k8a0mwbf5gc2_2825.generated.3812d81c1c1609700e47fc800e85bfac_filtered_base'
-                ], execConfig);
-
-                expectMetricDefinition({
-                    identifier: 'fact_qamfsd9cw85e53mcqs74k8a0mwbf5gc2_1144.generated.b9f95d95adbeac03870b764f8b2c3402_filtered_sum',
-                    expression: 'SELECT SUM([/gdc/md/qamfsd9cw85e53mcqs74k8a0mwbf5gc2/obj/1144]) WHERE [/gdc/md/qamfsd9cw85e53mcqs74k8a0mwbf5gc2/obj/949] IN ([/gdc/md/qamfsd9cw85e53mcqs74k8a0mwbf5gc2/obj/949/elements?id=168284],[/gdc/md/qamfsd9cw85e53mcqs74k8a0mwbf5gc2/obj/949/elements?id=168282])',
-                    title: 'Sum of Amount',
-                    format: '#,##0.00'
-                }, execConfig);
-
-                expectMetricDefinition({
-                    identifier: 'attribute_qamfsd9cw85e53mcqs74k8a0mwbf5gc2_1244.generated.a865b88e507b9390e2175b79e1d6252f_count',
-                    expression: 'SELECT COUNT([/gdc/md/qamfsd9cw85e53mcqs74k8a0mwbf5gc2/obj/1244])',
-                    title: 'Count of Activity',
-                    format: '#,##0.00'
-                }, execConfig);
-
-                expectMetricDefinition({
-                    identifier: 'metric_qamfsd9cw85e53mcqs74k8a0mwbf5gc2_2825.generated.3812d81c1c1609700e47fc800e85bfac_filtered_base',
-                    expression: 'SELECT [/gdc/md/qamfsd9cw85e53mcqs74k8a0mwbf5gc2/obj/2825] WHERE [/gdc/md/qamfsd9cw85e53mcqs74k8a0mwbf5gc2/obj/969] IN ([/gdc/md/qamfsd9cw85e53mcqs74k8a0mwbf5gc2/obj/969/elements?id=961042],[/gdc/md/qamfsd9cw85e53mcqs74k8a0mwbf5gc2/obj/969/elements?id=961038],[/gdc/md/qamfsd9cw85e53mcqs74k8a0mwbf5gc2/obj/969/elements?id=958079],[/gdc/md/qamfsd9cw85e53mcqs74k8a0mwbf5gc2/obj/969/elements?id=961044],[/gdc/md/qamfsd9cw85e53mcqs74k8a0mwbf5gc2/obj/969/elements?id=961046])',
-                    title: '# of Opportunities (Account: 1 Source Consulting, 1-800 Postcards, 1-800 We Answer, 1-888-OhioComp, 14 West)',
-                    format: '#,##0'
-                }, execConfig);
-
-                expectWhereCondition({
-                    $and: [
-                        {
-                            '/gdc/md/qamfsd9cw85e53mcqs74k8a0mwbf5gc2/obj/1028': {
-                                $in: [
-                                    { id: '1243' },
-                                    { id: '1242' },
-                                    { id: '1241' },
-                                    { id: '1240' },
-                                    { id: '1239' },
-                                    { id: '1238' },
-                                    { id: '1236' }
-                                ]
-                            }
+                        '/gdc/md/qamfsd9cw85e53mcqs74k8a0mwbf5gc2/obj/16561': {
+                            $between: [-3, 0],
+                            $granularity: 'GDC.time.week'
                         }
-                    ],
-                    '/gdc/md/qamfsd9cw85e53mcqs74k8a0mwbf5gc2/obj/16561': {
-                        $between: [-3, 0],
-                        $granularity: 'GDC.time.week'
-                    }
-                }, execConfig);
+                    }, execConfig);
+                });
             });
 
             it('handles empty filters', () => {
                 const mdObjWithoutFilters = cloneDeep(mdObj);
                 mdObjWithoutFilters.buckets.measures[0].measure.measureFilters[0].listAttributeFilter.default.attributeElements = []; // eslint-disable-line max-len
-                const execConfig = ex.mdToExecutionConfiguration(mdObjWithoutFilters);
+                const execConfig = ex.mdToExecutionConfiguration('qamfsd9cw85e53mcqs74k8a0mwbf5gc2', mdObjWithoutFilters);
 
                 expectColumns([
                     '/gdc/md/qamfsd9cw85e53mcqs74k8a0mwbf5gc2/obj/1028',
@@ -563,17 +680,18 @@ describe('execution', () => {
 
             it('converts string from/to for relative filter to numbers', () => {
                 const mdWithStrings = cloneDeep(mdObj);
-                mdWithStrings.buckets.filters = [{
-                    dateFilter: {
-                        type: 'relative',
-                        dimension: '/gdc/md/dim',
+                mdWithStrings.filters = [{
+                    relativeDateFilter: {
+                        dataSet: {
+                            uri: '/gdc/md/dim'
+                        },
                         granularity: 'GDC.time.year',
                         from: '-1',
                         to: '0'
                     }
                 }];
 
-                const executionConfiguration = ex.mdToExecutionConfiguration(mdWithStrings);
+                const executionConfiguration = ex.mdToExecutionConfiguration('qamfsd9cw85e53mcqs74k8a0mwbf5gc2', mdWithStrings);
                 const interval = getWhereInterval(executionConfiguration.where, '/gdc/md/dim');
 
                 expect(interval[0]).toBe(-1);
@@ -582,17 +700,17 @@ describe('execution', () => {
 
             it('should not convert absolute date filters', () => {
                 const mdWithStrings = cloneDeep(mdObj);
-                mdWithStrings.buckets.filters = [{
-                    dateFilter: {
-                        type: 'absolute',
-                        dimension: '/gdc/md/dim',
-                        granularity: 'GDC.time.year',
+                mdWithStrings.filters = [{
+                    absoluteDateFilter: {
+                        dataSet: {
+                            uri: '/gdc/md/dim'
+                        },
                         from: '2016-01-01',
                         to: '2017-01-01'
                     }
                 }];
 
-                const executionConfiguration = ex.mdToExecutionConfiguration(mdWithStrings);
+                const executionConfiguration = ex.mdToExecutionConfiguration('qamfsd9cw85e53mcqs74k8a0mwbf5gc2', mdWithStrings);
                 const interval = getWhereInterval(executionConfiguration.where, '/gdc/md/dim');
 
                 expect(interval[0]).toBe('2016-01-01');
@@ -601,37 +719,37 @@ describe('execution', () => {
 
             it('does not execute all-time date filter', () => {
                 const mdWithAllTime = cloneDeep(mdObj);
-                mdWithAllTime.buckets.filters = [{
-                    dateFilter: {
-                        dimension: '/gdc/md/qamfsd9cw85e53mcqs74k8a0mwbf5gc2/obj/16561',
+                mdWithAllTime.filters = [{
+                    relativeDateFilter: {
+                        dataSet: {
+                            uri: '/gdc/md/qamfsd9cw85e53mcqs74k8a0mwbf5gc2/obj/16561'
+                        },
                         granularity: 'GDC.time.year'
                     }
                 }];
 
-                const executionConfiguration = ex.mdToExecutionConfiguration(mdWithAllTime);
+                const executionConfiguration = ex.mdToExecutionConfiguration('qamfsd9cw85e53mcqs74k8a0mwbf5gc2', mdWithAllTime);
                 expect(executionConfiguration.where).toEqual({ $and: [] });
             });
 
             it('does not execute attribute filter with all selected', () => {
                 const mdWithSelectAll = cloneDeep(mdObj);
-                mdWithSelectAll.buckets.filters = [{
-                    listAttributeFilter: {
-                        attribute: '/gdc/md/qamfsd9cw85e53mcqs74k8a0mwbf5gc2/obj/1025',
-                        displayForm: '/gdc/md/qamfsd9cw85e53mcqs74k8a0mwbf5gc2/obj/1028',
-                        default: {
-                            negativeSelection: true,
-                            attributeElements: []
-                        }
+                mdWithSelectAll.filters = [{
+                    negativeAttributeFilter: {
+                        displayForm: {
+                            uri: '/gdc/md/qamfsd9cw85e53mcqs74k8a0mwbf5gc2/obj/1028'
+                        },
+                        notIn: []
                     }
                 }];
 
-                const executionConfiguration = ex.mdToExecutionConfiguration(mdWithSelectAll);
+                const executionConfiguration = ex.mdToExecutionConfiguration('qamfsd9cw85e53mcqs74k8a0mwbf5gc2', mdWithSelectAll);
                 expect(executionConfiguration.where).toEqual({ $and: [] });
             });
 
             it('generates right metricMappings', () => {
                 const mdObjCloned = cloneDeep(mdObj);
-                const executionConfiguration = ex.mdToExecutionConfiguration(mdObjCloned);
+                const executionConfiguration = ex.mdToExecutionConfiguration('qamfsd9cw85e53mcqs74k8a0mwbf5gc2', mdObjCloned);
                 expect(executionConfiguration.metricMappings).toEqual([
                     {
                         element: 'fact_qamfsd9cw85e53mcqs74k8a0mwbf5gc2_1144.generated.b9f95d95adbeac03870b764f8b2c3402_filtered_sum',
@@ -651,22 +769,43 @@ describe('execution', () => {
 
             it('generates right metricMappings for PoP metric', () => {
                 const mdObjPoP = cloneDeep(mdObj);
-                mdObjPoP.buckets.measures = [{
-                    measure: {
-                        type: 'metric',
-                        objectUri: '/gdc/md/qamfsd9cw85e53mcqs74k8a0mwbf5gc2/obj/1556',
-                        title: 'Probability BOP',
-                        format: '#,##0.00',
-                        measureFilters: [],
-                        showPoP: true,
-                        sort: {
-                            direction: 'asc',
-                            sortByPoP: true
+                mdObjPoP.buckets[0] = {
+                    localIdentifier: 'measures',
+                    items: [
+                        {
+                            measure: {
+                                localIdentifier: 'm1_pop',
+                                definition: {
+                                    popMeasureDefinition: {
+                                        measureIdentifier: 'm1',
+                                        popAttribute: {
+                                            uri: '/gdc/md/qamfsd9cw85e53mcqs74k8a0mwbf5gc2/obj/16561'
+                                        }
+                                    }
+                                },
+                                title: 'Probability BOP - previous year',
+                                format: '#,##0.00'
+                            }
+                        },
+                        {
+                            measure: {
+                                localIdentifier: 'm1',
+                                definition: {
+                                    measureDefinition: {
+                                        item: {
+                                            uri: '/gdc/md/qamfsd9cw85e53mcqs74k8a0mwbf5gc2/obj/1556'
+                                        },
+                                        filters: []
+                                    }
+                                },
+                                title: 'Probability BOP',
+                                format: '#,##0.00'
+                            }
                         }
-                    }
-                }];
+                    ]
+                };
 
-                const executionConfiguration = ex.mdToExecutionConfiguration(mdObjPoP);
+                const executionConfiguration = ex.mdToExecutionConfiguration('qamfsd9cw85e53mcqs74k8a0mwbf5gc2', mdObjPoP);
                 expect(executionConfiguration.metricMappings).toEqual([
                     {
                         element: 'metric_qamfsd9cw85e53mcqs74k8a0mwbf5gc2_1556.generated.742c298cb16e36869e5d70e87840ffa1_pop',
@@ -703,7 +842,7 @@ describe('execution', () => {
                 }
                 ];
 
-                const executionConfiguration = ex.mdToExecutionConfiguration(mdObjPoP);
+                const executionConfiguration = ex.mdToExecutionConfiguration('qamfsd9cw85e53mcqs74k8a0mwbf5gc2', mdObjPoP);
                 expect(executionConfiguration.metricMappings).toEqual([
                     {
                         element: '/gdc/md/qamfsd9cw85e53mcqs74k8a0mwbf5gc2/obj/1556',
@@ -717,7 +856,7 @@ describe('execution', () => {
             });
 
             it('propagates sort data from metrics and categories', () => {
-                const executionConfiguration = ex.mdToExecutionConfiguration(mdObj);
+                const executionConfiguration = ex.mdToExecutionConfiguration('qamfsd9cw85e53mcqs74k8a0mwbf5gc2', mdObj);
                 expectOrderBy(
                     [{
                         column: '/gdc/md/qamfsd9cw85e53mcqs74k8a0mwbf5gc2/obj/1028',
@@ -735,7 +874,7 @@ describe('execution', () => {
                 mdObj.buckets.measures[0].measure.showPoP = true;
                 mdObj.buckets.measures = mdObj.buckets.measures.slice(1);
 
-                const executionConfiguration = ex.mdToExecutionConfiguration(mdObj);
+                const executionConfiguration = ex.mdToExecutionConfiguration('qamfsd9cw85e53mcqs74k8a0mwbf5gc2', mdObj);
 
                 expectOrderBy(
                     [
@@ -751,7 +890,7 @@ describe('execution', () => {
             it('overrides sort for bar chart', () => {
                 mdObj.type = 'bar';
 
-                const executionConfiguration = ex.mdToExecutionConfiguration(mdObj);
+                const executionConfiguration = ex.mdToExecutionConfiguration('qamfsd9cw85e53mcqs74k8a0mwbf5gc2', mdObj);
 
                 expectOrderBy(
                     [
@@ -788,7 +927,7 @@ describe('execution', () => {
                     }
                 ];
 
-                const executionConfiguration = ex.mdToExecutionConfiguration(mdObj);
+                const executionConfiguration = ex.mdToExecutionConfiguration('qamfsd9cw85e53mcqs74k8a0mwbf5gc2', mdObj);
 
                 expectOrderBy([], executionConfiguration);
             });
@@ -808,7 +947,7 @@ describe('execution', () => {
                     }
                 ];
 
-                const execConfig = ex.mdToExecutionConfiguration(mdObj);
+                const execConfig = ex.mdToExecutionConfiguration('qamfsd9cw85e53mcqs74k8a0mwbf5gc2', mdObj);
 
                 execConfig.definitions.forEach((definition) => {
                     expect(definition.metricDefinition.title).toHaveLength(1000);
@@ -850,7 +989,7 @@ describe('execution', () => {
             });
 
             it('for calculated measure', () => {
-                const execConfig = ex.mdToExecutionConfiguration(mdObjContribution);
+                const execConfig = ex.mdToExecutionConfiguration('qamfsd9cw85e53mcqs74k8a0mwbf5gc2', mdObjContribution);
 
                 expectColumns([
                     '/gdc/md/qamfsd9cw85e53mcqs74k8a0mwbf5gc2/obj/1028',
@@ -879,7 +1018,7 @@ describe('execution', () => {
                     }
                 ];
 
-                const execConfig = ex.mdToExecutionConfiguration(mdObjContribution);
+                const execConfig = ex.mdToExecutionConfiguration('qamfsd9cw85e53mcqs74k8a0mwbf5gc2', mdObjContribution);
 
                 expectColumns([
                     '/gdc/md/qamfsd9cw85e53mcqs74k8a0mwbf5gc2/obj/1028',
@@ -922,7 +1061,7 @@ describe('execution', () => {
                     }
                 ];
 
-                const execConfig = ex.mdToExecutionConfiguration(mdObjContribution);
+                const execConfig = ex.mdToExecutionConfiguration('qamfsd9cw85e53mcqs74k8a0mwbf5gc2', mdObjContribution);
 
                 expectColumns([
                     '/gdc/md/qamfsd9cw85e53mcqs74k8a0mwbf5gc2/obj/1028',
@@ -981,7 +1120,7 @@ describe('execution', () => {
             });
 
             it('for calculated metric', () => {
-                const execConfig = ex.mdToExecutionConfiguration(mdObj);
+                const execConfig = ex.mdToExecutionConfiguration('qamfsd9cw85e53mcqs74k8a0mwbf5gc2', mdObj);
                 expectColumns([
                     '/gdc/md/qamfsd9cw85e53mcqs74k8a0mwbf5gc2/obj/1234',
                     'metric_qamfsd9cw85e53mcqs74k8a0mwbf5gc2_2825.generated.0e380388838e2d867a3d11ea64e22573_pop',
@@ -1010,7 +1149,7 @@ describe('execution', () => {
                     }
                 ];
 
-                const execConfig = ex.mdToExecutionConfiguration(mdObj);
+                const execConfig = ex.mdToExecutionConfiguration('qamfsd9cw85e53mcqs74k8a0mwbf5gc2', mdObj);
 
                 expectColumns([
                     '/gdc/md/qamfsd9cw85e53mcqs74k8a0mwbf5gc2/obj/1234',
@@ -1034,7 +1173,7 @@ describe('execution', () => {
             });
 
             it('for generated measure with contribution', () => {
-                mdObj.buckets.measures = [
+                mdObj.buckets = [
                     {
                         measure: {
                             type: 'fact',
@@ -1048,7 +1187,7 @@ describe('execution', () => {
                     }
                 ];
 
-                const execConfig = ex.mdToExecutionConfiguration(mdObj);
+                const execConfig = ex.mdToExecutionConfiguration('qamfsd9cw85e53mcqs74k8a0mwbf5gc2', mdObj);
 
                 expectColumns([
                     '/gdc/md/qamfsd9cw85e53mcqs74k8a0mwbf5gc2/obj/1234',
@@ -1069,141 +1208,6 @@ describe('execution', () => {
                     expression: 'SELECT (SELECT SUM([/gdc/md/qamfsd9cw85e53mcqs74k8a0mwbf5gc2/obj/1144])) / (SELECT SUM([/gdc/md/qamfsd9cw85e53mcqs74k8a0mwbf5gc2/obj/1144]) BY ALL [/gdc/md/qamfsd9cw85e53mcqs74k8a0mwbf5gc2/obj/1233])',
                     format: '#,##0.00%'
                 }, execConfig);
-            });
-        });
-
-        describe('Update metric format for generated metrics', () => {
-            const mdObj = {
-                buckets: {
-                    categories: [
-                        {
-                            category: {
-                                type: 'date',
-                                collection: 'attribute',
-                                displayForm: '/gdc/md/myFakeProjectId/obj/1234',
-                                attribute: '/gdc/md/myFakeProjectId/obj/1233'
-                            }
-                        }
-                    ]
-                }
-            };
-            const executionUriMatcher = '/gdc/internal/projects/myFakeProjectId/experimental/executions';
-
-            beforeEach(() => {
-                const responseMock = { metric: { content: { format: 'someone changed me' } } };
-                serverResponseMock = {
-                    executionResult: {
-                        columns: [
-                            {
-                                attributeDisplayForm: {
-                                    meta: {
-                                        identifier: 'attrId',
-                                        uri: 'attrUri',
-                                        title: 'Df Title'
-                                    }
-                                }
-                            },
-                            {
-                                metric: {
-                                    meta: {
-                                        identifier: 'metricId',
-                                        uri: 'metricUri',
-                                        title: 'Metric Title'
-                                    },
-                                    content: {
-                                        format: '#00'
-                                    }
-                                }
-                            }
-                        ],
-                        headers: [
-                            {
-                                id: 'attrId',
-                                title: 'Atribute Title',
-                                type: 'attrLabel',
-                                uri: 'attrUri'
-                            },
-                            {
-                                id: 'metricId',
-                                title: 'Metric Title',
-                                type: 'metric',
-                                uri: 'metricUri'
-                            }
-                        ],
-                        tabularDataResult: '/gdc/internal/projects/myFakeProjectId/experimental/executions/23452345',
-                        extendedTabularDataResult: '/gdc/internal/projects/myFakeProjectId/experimental/executions/extendedResults/23452345'
-                    }
-                };
-                fetchMock.mock(
-                    '/gdc/md/myFakeProjectId/obj/1',
-                    { status: 200, body: JSON.stringify(responseMock) }
-                );
-
-                fetchMock.mock(
-                    executionUriMatcher,
-                    { status: 200, body: JSON.stringify(serverResponseMock) }
-                );
-
-                fetchMock.mock(
-                    /\/gdc\/internal\/projects\/myFakeProjectId\/experimental\/executions\/extendedResults\/(\w+)/,
-                    { status: 201, body: JSON.stringify({ extendedTabularDataResult: { values: [{ id: 1, name: 'a' }, 1] } }) }
-                );
-            });
-
-            it('when metric is PoP', () => {
-                mdObj.buckets.measures = [
-                    {
-                        measure: {
-                            type: 'metric',
-                            objectUri: '/gdc/md/myFakeProjectId/obj/1',
-                            measureFilters: [],
-                            title: '% Sum of Amount',
-                            format: '#,##0.00',
-                            showPoP: true,
-                            showInPercent: false
-                        }
-                    }
-                ];
-                return ex.getDataForVis('myFakeProjectId', mdObj, {}).then(() => {
-                    const [, settings] = fetchMock.lastCall(executionUriMatcher);
-                    const request = JSON.parse(settings.body);
-                    expect(request.execution.definitions[0].metricDefinition.format).toBe('someone changed me');
-                });
-            });
-
-            it('when metric has metricFilter', () => {
-                mdObj.buckets.measures = [
-                    {
-                        measure: {
-                            type: 'metric',
-                            objectUri: '/gdc/md/myFakeProjectId/obj/1',
-                            measureFilters: [
-                                {
-                                    listAttributeFilter: {
-                                        attribute: '/gdc/md/qamfsd9cw85e53mcqs74k8a0mwbf5gc2/obj/949',
-                                        displayForm: '/gdc/md/qamfsd9cw85e53mcqs74k8a0mwbf5gc2/obj/952',
-                                        default: {
-                                            negativeSelection: false,
-                                            attributeElements: [
-                                                '/gdc/md/qamfsd9cw85e53mcqs74k8a0mwbf5gc2/obj/949/elements?id=168284',
-                                                '/gdc/md/qamfsd9cw85e53mcqs74k8a0mwbf5gc2/obj/949/elements?id=168282'
-                                            ]
-                                        }
-                                    }
-                                }
-                            ],
-                            title: '% Sum of Amount',
-                            format: '#,##0.00',
-                            showPoP: false,
-                            showInPercent: false
-                        }
-                    }
-                ];
-                return ex.getDataForVis('myFakeProjectId', mdObj, {}).then(() => {
-                    const [, settings] = fetchMock.lastCall(executionUriMatcher);
-                    const request = JSON.parse(settings.body);
-                    expect(request.execution.definitions[0].metricDefinition.format).toBe('someone changed me');
-                });
             });
         });
     });

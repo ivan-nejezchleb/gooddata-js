@@ -23,7 +23,6 @@ import {
 import {
     ajax,
     post,
-    get as xhrGet,
     parseJSON
 } from '../xhr';
 
@@ -241,12 +240,46 @@ function getAttrUriFromMap(dfUri, attributesMap) {
     return get(get(attributesMap, [dfUri], {}), ['attribute', 'meta', 'uri']);
 }
 
+function getAttrMeasureFilterDf(measureFilter) {
+    return get(measureFilter, ['positiveAttributeFilter', 'displayForm', 'uri']) ||
+        get(measureFilter, ['negativeAttributeFilter', 'displayForm', 'uri']);
+}
+
+function isAttrFilterNegative(attributeFilter) {
+    return get(attributeFilter, 'negativeAttributeFilter') !== undefined;
+}
+
+function getDateFilterInterval(dateFilter) {
+    if (get(dateFilter, 'absoluteDateFilter')) {
+        return {
+            from: get(dateFilter, ['absoluteDateFilter', 'from']),
+            to: get(dateFilter, ['absoluteDateFilter', 'to'])
+        };
+    }
+    return {
+        from: get(dateFilter, ['relativeDateFilter', 'from']),
+        to: get(dateFilter, ['relativeDateFilter', 'to'])
+    };
+}
+
+function getDataSetFromDateFilter(dateFilter) {
+    if (get(dateFilter, 'absoluteDateFilter')) {
+        return get(dateFilter, ['absoluteDateFilter', 'dataSet', 'uri']);
+    }
+    return get(dateFilter, ['relativeDateFilter', 'dataSet', 'uri']);
+}
+
+function getAttrFilterElements(attributeFilter) {
+    const isNegative = isAttrFilterNegative(attributeFilter);
+    const pathToElements = isNegative ? ['negativeAttributeFilter', 'notIn'] : ['positiveAttributeFilter', 'in'];
+    return get(attributeFilter, pathToElements, []);
+}
+
 function getAttrFilterExpression(measureFilter, attributesMap) {
     const isNegative = get(measureFilter, 'negativeAttributeFilter', false);
     const detailPath = isNegative ? 'negativeAttributeFilter' : 'positiveAttributeFilter';
-    const elementsPath = [detailPath, isNegative ? 'notIn' : 'in'];
     const attributeUri = getAttrUriFromMap(get(measureFilter, [detailPath, 'displayForm', 'uri']), attributesMap);
-    const elements = get(measureFilter, elementsPath, []);
+    const elements = getAttrFilterElements(measureFilter);
     if (isEmpty(elements)) {
         return null;
     }
@@ -319,8 +352,6 @@ const getGeneratedMetricIdentifier = (item, aggregation, expressionCreator, hash
     return `${type}_${identifier}.generated.${hash}${prefix}_${aggregation}`;
 };
 
-const isDateFilter = ({ dateFilter }) => dateFilter;
-
 function isMeasure(bucketItem) {
     return get(bucketItem, 'measure') !== undefined;
 }
@@ -359,19 +390,6 @@ const getFilters = ({ filters }) => filters;
 function isDateCategory(category, attributesMap = {}) {
     return getAttrTypeFromMap(get(category, 'displayForm'), attributesMap) !== undefined;
 }
-
-const getDateCategory = (mdObj, attributesMap) => {
-    return find(getCategories(getBuckets(mdObj)), category => isDateCategory(category, attributesMap));
-};
-
-
-const getDateFilter = (mdObj) => {
-    const dateFilter = find(getFilters(mdObj), isDateFilter);
-
-    return get(dateFilter, 'dateFilter');
-};
-
-// const getDate = (mdObj, attributesMap) => (getDateCategory(mdObj, attributesMap) || getDateFilter(mdObj));
 
 function getMeasureSorting(measure, mdObj) {
     const sorting = get(mdObj, ['properties', 'GdcProperties', 'sorts'], []); // TODO check this
@@ -421,7 +439,7 @@ const createDerivedMetric = (measure, mdObj, measureIndex, attributesMap) => {
     const aggregation = getAggregation(measure);
     const element = getGeneratedMetricIdentifier(
         measure,
-        aggregation,
+        aggregation.length ? aggregation : 'base',
         getGeneratedMetricExpression,
         hasher,
         attributesMap);
@@ -509,7 +527,7 @@ const createPoPMetric = (popMeasure, mdObj, measureIndex, attributesMap) => {
 };
 
 const createContributionPoPMetric = (popMeasure, mdObj, measureIndex, attributesMap) => {
-    const attributeUri = get(popMeasure, 'definition.popMeasureDefinition.popAttribute.uri');
+    const attributeUri = get(popMeasure, ['definition', 'popMeasureDefinition', 'popAttribute', 'uri']);
 
     const originalMeasure = getOriginalMeasureForPoP(popMeasure, mdObj);
 
@@ -541,42 +559,35 @@ const createContributionPoPMetric = (popMeasure, mdObj, measureIndex, attributes
     };
 };
 
-const categoryToElement = (attributesMap, mdObj, category) =>
+const categoryToElement = (mdObj, category) =>
     ({
-        element: getAttrUriFromMap(get(category, 'displayForm.uri'), attributesMap),
+        element: get(category, ['displayForm', 'uri']),
         sort: getCategorySorting(category, mdObj)
     });
 
 const attributeFilterToWhere = (f) => {
-    const elements = get(f, 'listAttributeFilter.default.attributeElements', []);
+    const elements = getAttrFilterElements(f);
     const elementsForQuery = map(elements, e => ({ id: last(e.split('=')) }));
 
-    const dfUri = get(f, 'listAttributeFilter.displayForm');
-    const negative = get(f, 'listAttributeFilter.default.negativeSelection');
+    const dfUri = getAttrMeasureFilterDf(f);
+    const negative = isAttrFilterNegative(f);
 
     return negative ?
         { [dfUri]: { $not: { $in: elementsForQuery } } } :
         { [dfUri]: { $in: elementsForQuery } };
 };
 
-const getFromFilter = (f, property) => get(f, `dateFilter.${property}`);
 const toInteger = value => parseInt(value, 10);
 
 const dateFilterToWhere = (f) => {
-    const dateUri =
-        getFromFilter(f, 'dimension') ||
-        getFromFilter(f, 'dataSet') ||
-        getFromFilter(f, 'dataset'); // dataset with lowercase 's' is deprecated; kept here for backwards compatibility
+    const dateUri = getDataSetFromDateFilter(f);
 
-    const granularity = getFromFilter(f, 'granularity');
-    const isRelative = getFromFilter(f, 'type') === 'relative';
+    const granularity = get(f, ['relativeDateFilter', 'granularity'], 'GDC.time.date');
+    const isRelative = get(f, 'relativeDateFilter') !== undefined;
 
-    const filterFrom = getFromFilter(f, 'from');
-    const filterTo = getFromFilter(f, 'to');
-
-    const from = isRelative ? toInteger(filterFrom) : filterFrom;
-    const to = isRelative ? toInteger(filterTo) : filterTo;
-
+    let { from, to } = getDateFilterInterval(f);
+    from = isRelative ? toInteger(from) : from;
+    to = isRelative ? toInteger(to) : to;
     const between = [from, to];
     return { [dateUri]: { $between: between, $granularity: granularity } };
 };
@@ -627,20 +638,21 @@ function getMetricFactory(measure, mdObj) {
     return factory;
 }
 
-const isDateFilterExecutable = dateFilter =>
-    get(dateFilter, 'from') !== undefined &&
-    get(dateFilter, 'to') !== undefined;
+function isDateFilterExecutable(dateFilter) {
+    const { from, to } = getDateFilterInterval(dateFilter);
+    return from !== undefined && to !== undefined;
+}
 
-const isAttributeFilterExecutable = listAttributeFilter =>
-    notEmpty(get(listAttributeFilter, ['default', 'attributeElements']));
-
+function isAttributeFilterExecutable(attributeFilter) {
+    return notEmpty(getAttrFilterElements(attributeFilter));
+}
 
 function getWhere(filters) {
     const executableFilters = filter(
-        filters, ({ listAttributeFilter }) => isAttributeFilterExecutable(listAttributeFilter)
+        filters, attributeFilter => isAttributeFilterExecutable(attributeFilter)
     );
     const attributeFilters = map(executableFilters, attributeFilterToWhere);
-    const dateFilters = map(filter(filters, ({ dateFilter }) => isDateFilterExecutable(dateFilter)), dateFilterToWhere);
+    const dateFilters = map(filter(filters, dateFilter => isDateFilterExecutable(dateFilter)), dateFilterToWhere);
 
     const resultDate = [...dateFilters].reduce(assign, {});
     const resultAttribute = {
@@ -657,30 +669,6 @@ const sortToOrderBy = item => ({ column: get(item, 'element'), direction: get(it
 
 const getOrderBy = (metrics, categories) => {
     return map(filter([...categories, ...metrics], item => item.sort), sortToOrderBy);
-};
-
-export const mdToExecutionConfiguration = (mdObj, options = {}) => {
-    const buckets = get(mdObj, 'buckets');
-    const measures = map(buckets.measures, ({ measure }) => measure);
-    const metrics = flatten(map(measures, (measure, index) => getMetricFactory(measure)(measure, buckets, index)));
-
-    let categories = getCategories(buckets);
-    let filters = getFilters(buckets);
-    if (options.removeDateItems) {
-        categories = filter(categories, ({ category }) => category.type !== 'date');
-        filters = filter(filters, item => !item.dateFilter);
-    }
-    categories = map(categories, categoryToElement);
-
-    const columns = compact(map([...categories, ...metrics], 'element'));
-
-    return {
-        columns,
-        orderBy: getOrderBy(metrics, categories, get(mdObj, 'type')),
-        definitions: sortDefinitions(compact(map(metrics, 'definition'))),
-        where: columns.length ? getWhere(filters) : {},
-        metricMappings: map(metrics, m => ({ element: m.element, ...m.meta }))
-    };
 };
 
 function getAttributesMap(projectId, categoryDisplayForms) {
@@ -701,12 +689,7 @@ function getAttributesMap(projectId, categoryDisplayForms) {
     });
 }
 
-function getAttrMeasureFilterDf(measureFilter) {
-    return get(measureFilter, ['positiveAttributeFilter', 'displayForm', 'uri']) ||
-        get(measureFilter, ['negativeAttributeFilter', 'displayForm', 'uri']);
-}
-
-export const newMdToExecutionConfiguration = (projectId, mdObj, options = {}) => {
+export const mdToExecutionConfiguration = (projectId, mdObj, options = {}) => {
     const buckets = getBuckets(mdObj);
     const measures = getMeasures(buckets);
     let categories = getCategories(buckets);
@@ -714,8 +697,14 @@ export const newMdToExecutionConfiguration = (projectId, mdObj, options = {}) =>
         filters.concat(getMeasureFilters(measure)),
     []), isAttrMeasureFilter);
     const attrMeasureFiltersDfs = attrMeasureFilters.map(getAttrMeasureFilterDf);
-    const categoryDfs = categories.map(category => get(category, 'displayForm.uri'));
-    return getAttributesMap(projectId, [...categoryDfs, ...attrMeasureFiltersDfs]).then((attributesMap) => {
+    const categoryDfs = categories.map(category => get(category, ['displayForm', 'uri']));
+    let attributesMapPromise;
+    if (options.attributesMap) {
+        attributesMapPromise = Promise.resolve(options.attributesMap);
+    } else {
+        attributesMapPromise = getAttributesMap(projectId, [...categoryDfs, ...attrMeasureFiltersDfs]);
+    }
+    return attributesMapPromise.then((attributesMap) => {
         const metrics = flatten(map(measures, (measure, index) =>
             getMetricFactory(measure, mdObj)(measure, mdObj, index, attributesMap))
         );
@@ -724,7 +713,7 @@ export const newMdToExecutionConfiguration = (projectId, mdObj, options = {}) =>
             categories = filter(categories, category => !isDateCategory(category, attributesMap));
             filters = filter(filters, item => !item.dateFilter);
         }
-        categories = map(categories, partial(categoryToElement, attributesMap, mdObj));
+        categories = map(categories, partial(categoryToElement, mdObj));
 
         const columns = compact(map([...categories, ...metrics], 'element'));
         return {
@@ -734,34 +723,5 @@ export const newMdToExecutionConfiguration = (projectId, mdObj, options = {}) =>
             where: columns.length ? getWhere(filters) : {},
             metricMappings: map(metrics, m => ({ element: m.element, ...m.meta }))
         };
-    });
-};
-
-const getOriginalMetricFormats = (mdObj) => {
-    // for metrics with showPoP or measureFilters.length > 0 roundtrip for original metric format
-    return Promise.all(map(
-        map(get(mdObj, 'buckets.measures'), ({ measure }) => measure),
-        (measure) => {
-            if (measure.showPoP === true || measure.measureFilters.length > 0) {
-                return xhrGet(measure.objectUri).then((obj) => {
-                    return {
-                        ...measure,
-                        format: get(obj, 'metric.content.format', measure.format)
-                    };
-                });
-            }
-
-            return Promise.resolve(measure);
-        }
-    ));
-};
-
-// TODO switch this to new MD obj
-export const getDataForVis = (projectId, mdObj, settings) => {
-    return getOriginalMetricFormats(mdObj).then((measures) => {
-        const metadata = mdObj;
-        metadata.buckets.measures = map(measures, measure => ({ measure }));
-        const { columns, ...executionConfiguration } = mdToExecutionConfiguration(mdObj);
-        return getData(projectId, columns, executionConfiguration, settings);
     });
 };
