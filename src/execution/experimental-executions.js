@@ -328,7 +328,9 @@ const getPoPExpression = (attributeUri, metricExpression) => {
     return `SELECT ${metricExpression} FOR PREVIOUS ([${attributeUri}])`;
 };
 
-const getGeneratedMetricHash = (title, format, expression) => md5(`${expression}#${title}#${format}`);
+const getGeneratedMetricHash = (title, format, expression) => {
+    return md5(`${expression}#${title}#${format}`);
+};
 
 function getMeasureType(measure) {
     const aggregation = getAggregation(measure);
@@ -392,7 +394,7 @@ function isDateCategory(category, attributesMap = {}) {
 }
 
 function getMeasureSorting(measure, mdObj) {
-    const sorting = get(mdObj, ['properties', 'GdcProperties', 'sorts'], []); // TODO check this
+    const sorting = get(mdObj, ['properties', 'sorts'], []); // TODO check this
     const matchedSorting = sorting.find((sortItem) => {
         const measureSortItem = get(sortItem, ['measureSortItem']);
         if (measureSortItem) {
@@ -402,13 +404,13 @@ function getMeasureSorting(measure, mdObj) {
         return false;
     });
     if (matchedSorting) {
-        return get(matchedSorting, 'direction', null);
+        return get(matchedSorting, ['measureSortItem', 'direction'], null);
     }
     return null;
 }
 
 function getCategorySorting(category, mdObj) {
-    const sorting = get(mdObj, ['properties', 'GdcProperties', 'sorts'], []);
+    const sorting = get(mdObj, ['properties', 'sorts'], []);
     const matchedSorting = sorting.find((sortItem) => {
         const attributeSortItem = get(sortItem, ['attributeSortItem']);
         if (attributeSortItem) {
@@ -418,7 +420,7 @@ function getCategorySorting(category, mdObj) {
         return false;
     });
     if (matchedSorting) {
-        return get(matchedSorting, 'direction', null);
+        return get(matchedSorting, ['attributeSortItem', 'direction'], null);
     }
     return null;
 }
@@ -463,7 +465,7 @@ const createDerivedMetric = (measure, mdObj, measureIndex, attributesMap) => {
 };
 
 const createContributionMetric = (measure, mdObj, measureIndex, attributesMap) => {
-    const category = first(getCategories(getBuckets(mdObj))); // TODO is it always first??
+    const category = first(getCategories(getBuckets(mdObj)));
     const getMetricExpression = partial(getPercentMetricExpression, category, attributesMap);
     const title = getBaseMetricTitle(get(measure, 'title'));
     const hasher = partial(getGeneratedMetricHash, title, CONTRIBUTION_METRIC_FORMAT);
@@ -559,11 +561,14 @@ const createContributionPoPMetric = (popMeasure, mdObj, measureIndex, attributes
     };
 };
 
-const categoryToElement = (mdObj, category) =>
-    ({
-        element: get(category, ['displayForm', 'uri']),
+const categoryToElement = (attributesMap, mdObj, context, category) => {
+    // for catalogue columns contain attribute uri, but for execution display form uri
+    const element = context === 'catalogue' ? getAttrUriFromMap(get(category, ['displayForm', 'uri']), attributesMap) : get(category, ['displayForm', 'uri']);
+    return {
+        element,
         sort: getCategorySorting(category, mdObj)
-    });
+    };
+};
 
 const attributeFilterToWhere = (f) => {
     const elements = getAttrFilterElements(f);
@@ -689,7 +694,7 @@ function getAttributesMap(projectId, categoryDisplayForms) {
     });
 }
 
-export const mdToExecutionConfiguration = (projectId, mdObj, options = {}) => {
+export const mdToExecutionConfiguration = (projectId, mdObj, options = {}, context = 'execution') => {
     const buckets = getBuckets(mdObj);
     const measures = getMeasures(buckets);
     let categories = getCategories(buckets);
@@ -713,7 +718,7 @@ export const mdToExecutionConfiguration = (projectId, mdObj, options = {}) => {
             categories = filter(categories, category => !isDateCategory(category, attributesMap));
             filters = filter(filters, item => !item.dateFilter);
         }
-        categories = map(categories, partial(categoryToElement, mdObj));
+        categories = map(categories, partial(categoryToElement, attributesMap, mdObj, context));
 
         const columns = compact(map([...categories, ...metrics], 'element'));
         return {

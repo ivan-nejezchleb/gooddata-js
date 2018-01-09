@@ -15,7 +15,7 @@ const LOAD_DATE_DATASET_DEFAULTS = {
 };
 
 function bucketItemsToExecConfig(projectId, mdObj, options = {}) {
-    return mdToExecutionConfiguration(projectId, mdObj, options).then((executionConfig) => {
+    return mdToExecutionConfiguration(projectId, mdObj, options, 'catalogue').then((executionConfig) => {
         const definitions = get(executionConfig, 'definitions');
 
         return get(executionConfig, 'columns').map((column) => {
@@ -77,11 +77,16 @@ export function loadItems(projectId, options = {}) {
         ...REQUEST_DEFAULTS,
         ...options,
         ...getRequiredDataSets(options)
-    }, ['dataSetIdentifier', 'returnAllDateDataSets']);
+    }, [
+        'dataSetIdentifier',
+        'returnAllDateDataSets',
+        'attributesMap'
+    ]);
 
     const mdObj = get(cloneDeep(options), 'bucketItems');
+    const { attributesMap } = options;
     if (mdObj) {
-        return bucketItemsToExecConfig(projectId, mdObj).then(bucketItems =>
+        return bucketItemsToExecConfig(projectId, mdObj, { attributesMap }).then(bucketItems =>
             loadCatalog(projectId,
                 {
                     ...request,
