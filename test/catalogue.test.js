@@ -1,4 +1,4 @@
-import { cloneDeep, get, set } from 'lodash';
+import { get } from 'lodash';
 import fetchMock from './utils/fetch-mock';
 import * as fixtures from './fixtures/catalogue';
 import * as catalogue from '../src/catalogue';
@@ -104,9 +104,12 @@ describe('Catalogue', () => {
         //     });
         // });
 
-        // it('should correctly resolve items with nested maql expressions and negative filter element selection', () => {
+        // it('should correctly resolve items with
+        // nested maql expressions and negative filter element selection', () => {
         //     const options = fixtures.optionsForMeasureWithFilterAndCategoryShowInPercent;
-        //     set(options, 'bucketItems.buckets.measures[0].measure.measureFilters[0].listAttributeFilter.default.negativeSelection', true);
+        //     set(options,
+        // 'bucketItems.buckets.measures[0].measure.measureFilters[0].listAttributeFilter.default.negativeSelection',
+        // true);
 
         //     return catalogue.loadItems(projectId, options).then(() => {
         //         const { data } = fetchMock.lastOptions();
@@ -251,7 +254,8 @@ describe('Catalogue', () => {
     //                                             default: {
     //                                                 negativeSelection: true,
     //                                                 attributeElements: [
-    //                                                     '/gdc/md/ovs4ke6eyaus033gyojhv1rh7u1bukmy/obj/2266/elements?id=706'
+    //                                                     '/gdc/md/ovs4ke6eyaus033gyojhv1rh7u1bukmy' +
+    //                                                     '/obj/2266/elements?id=706'
     //                                                 ]
     //                                             }
     //                                         }
@@ -309,11 +313,6 @@ describe('Catalogue', () => {
 
     //             const { bucketItems } = data.dateDataSetsRequest;
 
-    //             expect(bucketItems).toEqual([
-    //                 '/gdc/md/ovs4ke6eyaus033gyojhv1rh7u1bukmy/obj/2274',
-    //                 'SELECT (SELECT (SELECT SUM([/gdc/md/ovs4ke6eyaus033gyojhv1rh7u1bukmy/obj/2276]) WHERE [/gdc/md/ovs4ke6eyaus033gyojhv1rh7u1bukmy/obj/2266] NOT IN ([/gdc/md/ovs4ke6eyaus033gyojhv1rh7u1bukmy/obj/2266/elements?id=706])) / (SELECT SUM([/gdc/md/ovs4ke6eyaus033gyojhv1rh7u1bukmy/obj/2276]) BY ALL [/gdc/md/ovs4ke6eyaus033gyojhv1rh7u1bukmy/obj/2274] WHERE [/gdc/md/ovs4ke6eyaus033gyojhv1rh7u1bukmy/obj/2266] NOT IN ([/gdc/md/ovs4ke6eyaus033gyojhv1rh7u1bukmy/obj/2266/elements?id=706]))) FOR PREVIOUS ([/gdc/md/ovs4ke6eyaus033gyojhv1rh7u1bukmy/obj/2167])',
-    //                 'SELECT (SELECT SUM([/gdc/md/ovs4ke6eyaus033gyojhv1rh7u1bukmy/obj/2276]) WHERE [/gdc/md/ovs4ke6eyaus033gyojhv1rh7u1bukmy/obj/2266] NOT IN ([/gdc/md/ovs4ke6eyaus033gyojhv1rh7u1bukmy/obj/2266/elements?id=706])) / (SELECT SUM([/gdc/md/ovs4ke6eyaus033gyojhv1rh7u1bukmy/obj/2276]) BY ALL [/gdc/md/ovs4ke6eyaus033gyojhv1rh7u1bukmy/obj/2274] WHERE [/gdc/md/ovs4ke6eyaus033gyojhv1rh7u1bukmy/obj/2266] NOT IN ([/gdc/md/ovs4ke6eyaus033gyojhv1rh7u1bukmy/obj/2266/elements?id=706]))'
-    //             ]);
     //         });
     //     });
 
