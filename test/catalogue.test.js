@@ -1,4 +1,4 @@
-import { get } from 'lodash';
+import { cloneDeep, get } from 'lodash';
 import fetchMock from './utils/fetch-mock';
 import * as fixtures from './fixtures/catalogue';
 import * as catalogue from '../src/catalogue';
@@ -82,272 +82,329 @@ describe('Catalogue', () => {
             });
         });
 
-        // it('should not override bucketItems prop', () => {
-        //     const dummyUri = '__dummy_uri__';
+        it('should not override bucketItems prop', () => {
+            const dummyUri = '__dummy_uri__';
 
-        //     return catalogue.loadItems(projectId, { bucketItems: [dummyUri] }).then(() => {
-        //         const { data } = fetchMock.lastOptions();
+            return catalogue.loadItems(projectId, { bucketItems: [dummyUri] }).then(() => {
+                const { data } = fetchMock.lastOptions();
 
-        //         const { bucketItems } = data.catalogRequest;
+                const { bucketItems } = data.catalogRequest;
 
-        //         expect(bucketItems).toEqual([dummyUri]);
-        //     });
-        // });
+                expect(bucketItems).toEqual([dummyUri]);
+            });
+        });
 
-        // it('should correctly resolve items with nested maql expressions', () => {
-        //     const options = fixtures.optionsForMeasureWithFilterAndCategoryShowInPercent;
+        it('should correctly resolve items with nested maql expressions', () => {
+            const options = fixtures.optionsForMeasureWithFilterAndCategoryShowInPercent;
 
-        //     return catalogue.loadItems(projectId, options).then(() => {
-        //         const { data } = fetchMock.lastOptions();
+            return catalogue.loadItems(projectId, options).then(() => {
+                const { data } = fetchMock.lastOptions();
 
-        //         expect(data).toEqual(fixtures.requestForMeasureWithFilterAndCategoryShowInPercent);
-        //     });
-        // });
+                expect(data).toEqual(fixtures.requestForMeasureWithFilterAndCategoryShowInPercent);
+            });
+        });
 
-        // it('should correctly resolve items with
-        // nested maql expressions and negative filter element selection', () => {
-        //     const options = fixtures.optionsForMeasureWithFilterAndCategoryShowInPercent;
-        //     set(options,
-        // 'bucketItems.buckets.measures[0].measure.measureFilters[0].listAttributeFilter.default.negativeSelection',
-        // true);
+        it('should correctly resolve items with nested maql expressions and negative filter element selection', () => {
+            const options = fixtures.optionsForMeasureWithNotInFilterAndCategoryShowInPercent;
 
-        //     return catalogue.loadItems(projectId, options).then(() => {
-        //         const { data } = fetchMock.lastOptions();
+            return catalogue.loadItems(projectId, options).then(() => {
+                const { data } = fetchMock.lastOptions();
 
-        //         expect(data).toEqual(fixtures.requestForMeasureWithNotInFilterAndCategoryShowInPercent);
-        //     });
-        // });
+                expect(data).toEqual(fixtures.requestForMeasureWithNotInFilterAndCategoryShowInPercent);
+            });
+        });
 
-        // it('should send from ALL dataSets type when passing returnAllDateDataSets param', () => {
-        //     const options = cloneDeep(fixtures.optionsForEmptySelection);
-        //     options.returnAllDateDataSets = true;
+        it('should send from ALL dataSets type when passing returnAllDateDataSets param', () => {
+            const options = cloneDeep(fixtures.optionsForEmptySelection);
+            options.returnAllDateDataSets = true;
 
-        //     return catalogue.loadItems(projectId, options).then(() => {
-        //         const { data } = fetchMock.lastOptions();
+            return catalogue.loadItems(projectId, options).then(() => {
+                const { data } = fetchMock.lastOptions();
 
-        //         expect(data.catalogRequest.requiredDataSets).toEqual({ type: 'ALL' });
-        //     });
-        // });
+                expect(data.catalogRequest.requiredDataSets).toEqual({ type: 'ALL' });
+            });
+        });
 
-        // it('should send CUSTOM requiredDataSets structure for dataSetIdentifier param', () => {
-        //     const options = cloneDeep(fixtures.optionsForEmptySelection);
+        it('should send CUSTOM requiredDataSets structure for dataSetIdentifier param', () => {
+            const options = cloneDeep(fixtures.optionsForEmptySelection);
 
-        //     options.dataSetIdentifier = 'identifier';
+            options.dataSetIdentifier = 'identifier';
 
-        //     return catalogue.loadItems(projectId, options).then(() => {
-        //         const { data } = fetchMock.lastOptions();
+            return catalogue.loadItems(projectId, options).then(() => {
+                const { data } = fetchMock.lastOptions();
 
-        //         expect(data.catalogRequest.requiredDataSets).toEqual({
-        //             type: 'CUSTOM',
-        //             customIdentifiers: [options.dataSetIdentifier]
-        //         });
-        //     });
-        // });
+                expect(data.catalogRequest.requiredDataSets).toEqual({
+                    type: 'CUSTOM',
+                    customIdentifiers: [options.dataSetIdentifier]
+                });
+            });
+        });
     });
 
-    // describe('#loadDateDataSets', () => {
-    //     beforeEach(() => {
-    //         fetchMock.mock(`/gdc/internal/projects/${projectId}/loadDateDataSets`, {
-    //             status: 200,
-    //             body: JSON.stringify(fixtures.loadDateDataSetsResponse)
-    //         });
-    //     });
+    describe('#loadDateDataSets', () => {
+        beforeEach(() => {
+            fetchMock.mock(`/gdc/internal/projects/${projectId}/loadDateDataSets`, {
+                status: 200,
+                body: JSON.stringify(fixtures.loadDateDataSetsResponse)
+            });
+        });
 
-    //     afterEach(() => {
-    //         fetchMock.restore();
-    //     });
+        afterEach(() => {
+            fetchMock.restore();
+        });
 
-    //     it('should generate basic request structure', () => {
-    //         return catalogue.loadDateDataSets(projectId, {}).then(() => {
-    //             const { data } = fetchMock.lastOptions();
+        it('should generate basic request structure', () => {
+            return catalogue.loadDateDataSets(projectId, {}).then(() => {
+                const { data } = fetchMock.lastOptions();
 
-    //             expect(data.dateDataSetsRequest).toEqual({
-    //                 includeUnavailableDateDataSetsCount: true,
-    //                 includeAvailableDateAttributes: true,
-    //                 bucketItems: undefined,
-    //                 requiredDataSets: {
-    //                     type: 'PRODUCTION'
-    //                 }
-    //             });
-    //         });
-    //     });
+                expect(data.dateDataSetsRequest).toEqual({
+                    includeUnavailableDateDataSetsCount: true,
+                    includeAvailableDateAttributes: true,
+                    bucketItems: undefined,
+                    requiredDataSets: {
+                        type: 'PRODUCTION'
+                    }
+                });
+            });
+        });
 
-    //     it('should send convert dataSetIdentifier to customIdentifiers', () => {
-    //         const dataSetIdentifier = 'my_identifier';
+        it('should send convert dataSetIdentifier to customIdentifiers', () => {
+            const dataSetIdentifier = 'my_identifier';
 
-    //         return catalogue.loadDateDataSets(projectId, { dataSetIdentifier }).then(() => {
-    //             const { data } = fetchMock.lastOptions();
+            return catalogue.loadDateDataSets(projectId, { dataSetIdentifier }).then(() => {
+                const { data } = fetchMock.lastOptions();
 
-    //             const { requiredDataSets } = data.dateDataSetsRequest;
-    //             expect(requiredDataSets).toEqual({
-    //                 type: 'CUSTOM',
-    //                 customIdentifiers: [dataSetIdentifier]
-    //             });
-    //         });
-    //     });
+                const { requiredDataSets } = data.dateDataSetsRequest;
+                expect(requiredDataSets).toEqual({
+                    type: 'CUSTOM',
+                    customIdentifiers: [dataSetIdentifier]
+                });
+            });
+        });
 
-    //     it('should send type ALL when sending returnAllDateDataSets', () => {
-    //         const returnAllDateDataSets = true;
+        it('should send type ALL when sending returnAllDateDataSets', () => {
+            const returnAllDateDataSets = true;
 
-    //         return catalogue.loadDateDataSets(projectId, { returnAllDateDataSets }).then(() => {
-    //             const { data } = fetchMock.lastOptions();
+            return catalogue.loadDateDataSets(projectId, { returnAllDateDataSets }).then(() => {
+                const { data } = fetchMock.lastOptions();
 
-    //             const { requiredDataSets } = data.dateDataSetsRequest;
-    //             expect(requiredDataSets).toEqual({
-    //                 type: 'ALL'
-    //             });
-    //         });
-    //     });
+                const { requiredDataSets } = data.dateDataSetsRequest;
+                expect(requiredDataSets).toEqual({
+                    type: 'ALL'
+                });
+            });
+        });
 
-    //     it('should omit requiredDataSets parameter when sending returnAllRelatedDateDataSets', () => {
-    //         const returnAllRelatedDateDataSets = true;
+        it('should omit requiredDataSets parameter when sending returnAllRelatedDateDataSets', () => {
+            const returnAllRelatedDateDataSets = true;
 
-    //         return catalogue.loadDateDataSets(projectId, { returnAllRelatedDateDataSets }).then(() => {
-    //             const { data } = fetchMock.lastOptions();
+            return catalogue.loadDateDataSets(projectId, { returnAllRelatedDateDataSets }).then(() => {
+                const { data } = fetchMock.lastOptions();
 
-    //             const { requiredDataSets } = data.dateDataSetsRequest;
-    //             expect(requiredDataSets).toBe(undefined);
-    //         });
-    //     });
+                const { requiredDataSets } = data.dateDataSetsRequest;
+                expect(requiredDataSets).toBe(undefined);
+            });
+        });
 
-    //     it('should send empty columns if only date buckets are in the request', () => {
-    //         const mockPayload = {
-    //             bucketItems: {
-    //                 buckets: {
-    //                     categories: [{
-    //                         category: {
-    //                             type: 'date',
-    //                             attribute: '/attr1'
-    //                         }
-    //                     }],
-    //                     filters: [{
-    //                         dateFilter: {
-    //                             type: 'relative', // does not matter
-    //                             attribute: '/attr1'
-    //                         }
-    //                     }]
-    //                 }
-    //             }
-    //         };
+        it('should send empty columns if only date buckets are in the request', () => {
+            const mockPayload = {
+                bucketItems: {
+                    buckets: [
+                        {
+                            localIdentifier: 'attribute',
+                            items: [{
+                                visualizationAttribute: {
+                                    localIdentifier: 'a1',
+                                    displayForm: {
+                                        uri: '/gdc/md/FoodMartDemo/obj/attr1'
+                                    }
+                                }
+                            }]
+                        }
+                    ],
+                    filters: [{
+                        relativeDateFilter: {
+                            dataSet: {
+                                uri: '/attr1'
+                            },
+                            granularity: 'GDC.time.year',
+                            from: -1,
+                            to: -1
+                        }
+                    }]
+                },
+                attributesMap: {
+                    '/gdc/md/FoodMartDemo/obj/attr1': {
+                        attribute: {
+                            content: {
+                                type: 'GDC.time.year'
+                            },
+                            meta: {
+                                uri: '/gdc/md/qamfsd9cw85e53mcqs74k8a0mwbf5gc2/obj/1233'
+                            }
+                        }
+                    }
+                }
+            };
 
-    //         return catalogue.loadDateDataSets(projectId, mockPayload).then(() => {
-    //             const { data } = fetchMock.lastOptions();
+            return catalogue.loadDateDataSets(projectId, mockPayload).then(() => {
+                const { data } = fetchMock.lastOptions();
 
-    //             const { bucketItems } = data.dateDataSetsRequest;
+                const { bucketItems } = data.dateDataSetsRequest;
 
-    //             expect(bucketItems).toHaveLength(0);
-    //         });
-    //     });
+                expect(bucketItems).toHaveLength(0);
+            });
+        });
 
-    //     it('should replace identifiers with pure MAQL', () => {
-    //         const mockPayload = {
-    //             bucketItems: {
-    //                 buckets: {
-    //                     measures: [
-    //                         {
-    //                             measure: {
-    //                                 measureFilters: [
-    //                                     {
-    //                                         listAttributeFilter: {
-    //                                             attribute: '/gdc/md/ovs4ke6eyaus033gyojhv1rh7u1bukmy/obj/2266',
-    //                                             displayForm: '/gdc/md/ovs4ke6eyaus033gyojhv1rh7u1bukmy/obj/2267',
-    //                                             default: {
-    //                                                 negativeSelection: true,
-    //                                                 attributeElements: [
-    //                                                     '/gdc/md/ovs4ke6eyaus033gyojhv1rh7u1bukmy' +
-    //                                                     '/obj/2266/elements?id=706'
-    //                                                 ]
-    //                                             }
-    //                                         }
-    //                                     }
-    //                                 ],
-    //                                 showInPercent: true,
-    //                                 objectUri: '/gdc/md/ovs4ke6eyaus033gyojhv1rh7u1bukmy/obj/2276',
-    //                                 aggregation: 'sum',
-    //                                 format: '#,##0.00',
-    //                                 showPoP: true,
-    //                                 title: 'Measure title',
-    //                                 type: 'fact'
-    //                             }
-    //                         }
-    //                     ],
-    //                     filters: [
-    //                         {
-    //                             listAttributeFilter: {
-    //                                 attribute: '/gdc/md/ovs4ke6eyaus033gyojhv1rh7u1bukmy/obj/2274',
-    //                                 displayForm: '/gdc/md/ovs4ke6eyaus033gyojhv1rh7u1bukmy/obj/2275',
-    //                                 default: {
-    //                                     negativeSelection: true,
-    //                                     attributeElements: []
-    //                                 }
-    //                             }
-    //                         },
-    //                         {
-    //                             dateFilter: {
-    //                                 attribute: '/gdc/md/ovs4ke6eyaus033gyojhv1rh7u1bukmy/obj/2167',
-    //                                 to: '2016-09-30',
-    //                                 granularity: 'GDC.time.date',
-    //                                 from: '2000-07-01',
-    //                                 dataset: '/gdc/md/ovs4ke6eyaus033gyojhv1rh7u1bukmy/obj/2180',
-    //                                 type: 'absolute'
-    //                             }
-    //                         }
-    //                     ],
-    //                     categories: [
-    //                         {
-    //                             category: {
-    //                                 attribute: '/gdc/md/ovs4ke6eyaus033gyojhv1rh7u1bukmy/obj/2274',
-    //                                 type: 'attribute',
-    //                                 displayForm: '/gdc/md/ovs4ke6eyaus033gyojhv1rh7u1bukmy/obj/2275',
-    //                                 collection: 'trend'
-    //                             }
-    //                         }
-    //                     ]
-    //                 },
-    //                 type: 'line'
-    //             }
-    //         };
+        it('should replace identifiers with pure MAQL', () => {
+            const mockPayload = {
+                bucketItems: {
+                    buckets: [
+                        {
+                            localIdentifier: 'measures',
+                            items: [
+                                {
+                                    measure: {
+                                        localIdentifier: 'm1_pop',
+                                        definition: {
+                                            popMeasureDefinition: {
+                                                measureIdentifier: 'm1',
+                                                popAttribute: {
+                                                    uri: '/gdc/md/ovs4ke6eyaus033gyojhv1rh7u1bukmy/obj/2167'
+                                                }
+                                            }
+                                        }
+                                    }
+                                },
+                                {
+                                    measure: {
+                                        localIdentifier: 'm1',
+                                        definition: {
+                                            measureDefinition: {
+                                                item: {
+                                                    uri: '/gdc/md/ovs4ke6eyaus033gyojhv1rh7u1bukmy/obj/2276'
+                                                },
+                                                filters: [
+                                                    {
+                                                        negativeAttributeFilter: {
+                                                            displayForm: {
+                                                                uri: '/gdc/md/ovs4ke6eyaus033gyojhv1rh7u1bukmy/obj/2267'
+                                                            },
+                                                            notIn: [
+                                                                '/gdc/md/ovs4ke6eyaus033gyojhv1rh7u1bukmy/obj/2266/elements?id=706'
+                                                            ]
+                                                        }
+                                                    }
+                                                ],
+                                                computeRatio: true,
+                                                aggregation: 'sum'
+                                            }
+                                        },
+                                        format: '#,##0.00',
+                                        title: 'Measure title'
+                                    }
+                                }
+                            ]
+                        },
+                        {
+                            localIdentifier: 'trend',
+                            items: [
+                                {
+                                    visualizationAttribute: {
+                                        localIdentifier: 'a1',
+                                        displayForm: {
+                                            uri: '/gdc/md/ovs4ke6eyaus033gyojhv1rh7u1bukmy/obj/2275'
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    ],
+                    filters: [
+                        {
+                            negativeAttributeFilter: {
+                                displayForm: {
+                                    uri: '/gdc/md/ovs4ke6eyaus033gyojhv1rh7u1bukmy/obj/2275'
+                                },
+                                notIn: []
+                            }
+                        },
+                        {
+                            absoluteDateFilter: {
+                                dataset: {
+                                    uri: '/gdc/md/ovs4ke6eyaus033gyojhv1rh7u1bukmy/obj/2180'
+                                },
+                                to: '2016-09-30',
+                                from: '2000-07-01'
+                            }
+                        }
+                    ]
+                },
+                attributesMap: {
+                    '/gdc/md/ovs4ke6eyaus033gyojhv1rh7u1bukmy/obj/2267': {
+                        attribute: {
+                            content: {},
+                            meta: {
+                                uri: '/gdc/md/ovs4ke6eyaus033gyojhv1rh7u1bukmy/obj/2266'
+                            }
+                        }
+                    },
+                    '/gdc/md/ovs4ke6eyaus033gyojhv1rh7u1bukmy/obj/2275': {
+                        attribute: {
+                            content: {},
+                            meta: {
+                                uri: '/gdc/md/ovs4ke6eyaus033gyojhv1rh7u1bukmy/obj/2274'
+                            }
+                        }
+                    }
+                }
+            };
 
-    //         return catalogue.loadDateDataSets(projectId, mockPayload).then(() => {
-    //             const { data } = fetchMock.lastOptions();
+            return catalogue.loadDateDataSets(projectId, mockPayload).then(() => {
+                const { data } = fetchMock.lastOptions();
 
-    //             const { bucketItems } = data.dateDataSetsRequest;
+                const { bucketItems } = data.dateDataSetsRequest;
 
-    //         });
-    //     });
+                expect(bucketItems).toEqual([
+                    '/gdc/md/ovs4ke6eyaus033gyojhv1rh7u1bukmy/obj/2274',
+                    'SELECT (SELECT (SELECT SUM([/gdc/md/ovs4ke6eyaus033gyojhv1rh7u1bukmy/obj/2276]) WHERE [/gdc/md/ovs4ke6eyaus033gyojhv1rh7u1bukmy/obj/2266] NOT IN ([/gdc/md/ovs4ke6eyaus033gyojhv1rh7u1bukmy/obj/2266/elements?id=706])) / (SELECT SUM([/gdc/md/ovs4ke6eyaus033gyojhv1rh7u1bukmy/obj/2276]) BY ALL [/gdc/md/ovs4ke6eyaus033gyojhv1rh7u1bukmy/obj/2274] WHERE [/gdc/md/ovs4ke6eyaus033gyojhv1rh7u1bukmy/obj/2266] NOT IN ([/gdc/md/ovs4ke6eyaus033gyojhv1rh7u1bukmy/obj/2266/elements?id=706]))) FOR PREVIOUS ([/gdc/md/ovs4ke6eyaus033gyojhv1rh7u1bukmy/obj/2167])',
+                    'SELECT (SELECT SUM([/gdc/md/ovs4ke6eyaus033gyojhv1rh7u1bukmy/obj/2276]) WHERE [/gdc/md/ovs4ke6eyaus033gyojhv1rh7u1bukmy/obj/2266] NOT IN ([/gdc/md/ovs4ke6eyaus033gyojhv1rh7u1bukmy/obj/2266/elements?id=706])) / (SELECT SUM([/gdc/md/ovs4ke6eyaus033gyojhv1rh7u1bukmy/obj/2276]) BY ALL [/gdc/md/ovs4ke6eyaus033gyojhv1rh7u1bukmy/obj/2274] WHERE [/gdc/md/ovs4ke6eyaus033gyojhv1rh7u1bukmy/obj/2266] NOT IN ([/gdc/md/ovs4ke6eyaus033gyojhv1rh7u1bukmy/obj/2266/elements?id=706]))'
+                ]);
+            });
+        });
 
-    //     it('should use option includeObjectsWithTags if provided', () => {
-    //         const includeObjectsWithTags = ['a', 'b', 'c'];
+        it('should use option includeObjectsWithTags if provided', () => {
+            const includeObjectsWithTags = ['a', 'b', 'c'];
 
-    //         return catalogue.loadDateDataSets(projectId, { includeObjectsWithTags }).then(() => {
-    //             const { data } = fetchMock.lastOptions();
+            return catalogue.loadDateDataSets(projectId, { includeObjectsWithTags }).then(() => {
+                const { data } = fetchMock.lastOptions();
 
-    //             expect(data.dateDataSetsRequest.includeObjectsWithTags).toEqual(['a', 'b', 'c']);
-    //         });
-    //     });
+                expect(data.dateDataSetsRequest.includeObjectsWithTags).toEqual(['a', 'b', 'c']);
+            });
+        });
 
-    //     it('should use option excludeObjectsWithTags if provided', () => {
-    //         const excludeObjectsWithTags = ['a', 'b', 'c'];
+        it('should use option excludeObjectsWithTags if provided', () => {
+            const excludeObjectsWithTags = ['a', 'b', 'c'];
 
-    //         return catalogue.loadDateDataSets(projectId, { excludeObjectsWithTags }).then(() => {
-    //             const { data } = fetchMock.lastOptions();
+            return catalogue.loadDateDataSets(projectId, { excludeObjectsWithTags }).then(() => {
+                const { data } = fetchMock.lastOptions();
 
-    //             expect(data.dateDataSetsRequest.excludeObjectsWithTags).toEqual(['a', 'b', 'c']);
-    //         });
-    //     });
+                expect(data.dateDataSetsRequest.excludeObjectsWithTags).toEqual(['a', 'b', 'c']);
+            });
+        });
 
-    //     it('should use option includeObjectsWithTags and omit excludeObjectsWithTags if both provided', () => {
-    //         const includeObjectsWithTags = ['a', 'b', 'c'];
-    //         const excludeObjectsWithTags = ['d', 'e', 'f'];
+        it('should use option includeObjectsWithTags and omit excludeObjectsWithTags if both provided', () => {
+            const includeObjectsWithTags = ['a', 'b', 'c'];
+            const excludeObjectsWithTags = ['d', 'e', 'f'];
 
-    //         const options = { includeObjectsWithTags, excludeObjectsWithTags };
+            const options = { includeObjectsWithTags, excludeObjectsWithTags };
 
-    //         return catalogue.loadDateDataSets(projectId, options).then(() => {
-    //             const { data } = fetchMock.lastOptions();
+            return catalogue.loadDateDataSets(projectId, options).then(() => {
+                const { data } = fetchMock.lastOptions();
 
-    //             expect(data.dateDataSetsRequest.includeObjectsWithTags).toEqual(['a', 'b', 'c']);
-    //             expect(data.dateDataSetsRequest.excludeObjectsWithTags).toBe(undefined);
-    //         });
-    //     });
-    // });
+                expect(data.dateDataSetsRequest.includeObjectsWithTags).toEqual(['a', 'b', 'c']);
+                expect(data.dateDataSetsRequest.excludeObjectsWithTags).toBe(undefined);
+            });
+        });
+    });
 });

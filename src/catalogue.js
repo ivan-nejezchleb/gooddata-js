@@ -85,7 +85,8 @@ export function loadItems(projectId, options = {}) {
 
     const mdObj = get(cloneDeep(options), 'bucketItems');
     const { attributesMap } = options;
-    if (mdObj) {
+    const hasBuckets = get(mdObj, 'buckets') !== undefined;
+    if (mdObj && hasBuckets) {
         return bucketItemsToExecConfig(projectId, mdObj, { attributesMap }).then(bucketItems =>
             loadCatalog(projectId,
                 {

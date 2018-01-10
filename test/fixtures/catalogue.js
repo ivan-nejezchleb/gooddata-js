@@ -34,9 +34,7 @@ export const requestForEmptySelection = {
 const attributesMapForMeasureTypeFactWithFilter = {
     '/gdc/md/FoodMartDemo/obj/124': {
         attribute: {
-            content: {
-                type: 'attribute'
-            },
+            content: {},
             meta: {
                 uri: '/gdc/md/FoodMartDemo/obj/58'
             }
@@ -117,9 +115,7 @@ export const requestForMeasureTypeFactWithFilter = {
 const attributesMapForMeasureWithFilterAndCategory = {
     '/gdc/md/FoodMartDemo/obj/124': {
         attribute: {
-            content: {
-                type: 'attribute'
-            },
+            content: {},
             meta: {
                 uri: '/gdc/md/FoodMartDemo/obj/58'
             }
@@ -127,9 +123,7 @@ const attributesMapForMeasureWithFilterAndCategory = {
     },
     '/gdc/md/FoodMartDemo/obj/117': {
         attribute: {
-            content: {
-                type: 'attribute'
-            },
+            content: {},
             meta: {
                 uri: '/gdc/md/FoodMartDemo/obj/54'
             }
@@ -218,6 +212,25 @@ export const requestForMeasureWithFilterAndCategory = {
     }
 };
 
+
+const attributesMapForMeasureWithFilterAndCategoryShowInPercent = {
+    '/gdc/md/FoodMartDemo/obj/124': {
+        attribute: {
+            content: {},
+            meta: {
+                uri: '/gdc/md/FoodMartDemo/obj/58'
+            }
+        }
+    },
+    '/gdc/md/FoodMartDemo/obj/117': {
+        attribute: {
+            content: {},
+            meta: {
+                uri: '/gdc/md/FoodMartDemo/obj/54'
+            }
+        }
+    }
+};
 export const optionsForMeasureWithFilterAndCategoryShowInPercent = {
     types: [
         'metric',
@@ -229,48 +242,56 @@ export const optionsForMeasureWithFilterAndCategoryShowInPercent = {
         limit: 100
     },
     bucketItems: {
-        type: 'column',
-        buckets: {
-            measures: [
-                {
-                    measure: {
-                        type: 'fact',
-                        aggregation: 'sum',
-                        objectUri: '/gdc/md/FoodMartDemo/obj/1',
-                        title: 'Sum of Accounting Amount',
-                        format: '#,##0.00',
-                        measureFilters: [
-                            {
-                                listAttributeFilter: {
-                                    attribute: '/gdc/md/FoodMartDemo/obj/58',
-                                    displayForm: '/gdc/md/FoodMartDemo/obj/124',
-                                    default: {
-                                        negativeSelection: false,
-                                        attributeElements: [
-                                            '/gdc/md/FoodMartDemo/obj/58/elements?id=1000'
-                                        ]
-                                    }
+        buckets: [
+            {
+                localIdentifier: 'measures',
+                items: [
+                    {
+                        measure: {
+                            localIdentifier: 'm1',
+                            definition: {
+                                measureDefinition: {
+                                    aggregation: 'sum',
+                                    item: {
+                                        uri: '/gdc/md/FoodMartDemo/obj/1'
+                                    },
+                                    filters: [
+                                        {
+                                            positiveAttributeFilter: {
+                                                displayForm: {
+                                                    uri: '/gdc/md/FoodMartDemo/obj/124'
+                                                },
+                                                in: [
+                                                    '/gdc/md/FoodMartDemo/obj/58/elements?id=1000'
+                                                ]
+                                            }
+                                        }
+                                    ],
+                                    computeRatio: true
                                 }
+                            },
+                            title: 'Sum of Accounting Amount',
+                            format: '#,##0.00'
+                        }
+                    }
+                ]
+            },
+            {
+                localIdentifier: 'view',
+                items: [
+                    {
+                        visualizationAttribute: {
+                            localIdentifier: 'a1',
+                            displayForm: {
+                                uri: '/gdc/md/FoodMartDemo/obj/117'
                             }
-                        ],
-                        showInPercent: true,
-                        showPoP: false
+                        }
                     }
-                }
-            ],
-            categories: [
-                {
-                    category: {
-                        type: 'attribute',
-                        collection: 'view',
-                        attribute: '/gdc/md/FoodMartDemo/obj/54',
-                        displayForm: '/gdc/md/FoodMartDemo/obj/117'
-                    }
-                }
-            ],
-            filters: []
-        }
-    }
+                ]
+            }
+        ]
+    },
+    attributesMap: attributesMapForMeasureWithFilterAndCategoryShowInPercent
 };
 
 export const requestForMeasureWithFilterAndCategoryShowInPercent = {
@@ -292,6 +313,69 @@ export const requestForMeasureWithFilterAndCategoryShowInPercent = {
             type: 'PRODUCTION'
         }
     }
+};
+
+export const optionsForMeasureWithNotInFilterAndCategoryShowInPercent = {
+    types: [
+        'metric',
+        'attribute',
+        'fact'
+    ],
+    paging: {
+        offset: 0,
+        limit: 100
+    },
+    bucketItems: {
+        buckets: [
+            {
+                localIdentifier: 'measures',
+                items: [
+                    {
+                        measure: {
+                            localIdentifier: 'm1',
+                            definition: {
+                                measureDefinition: {
+                                    aggregation: 'sum',
+                                    item: {
+                                        uri: '/gdc/md/FoodMartDemo/obj/1'
+                                    },
+                                    filters: [
+                                        {
+                                            negativeAttributeFilter: {
+                                                displayForm: {
+                                                    uri: '/gdc/md/FoodMartDemo/obj/124'
+                                                },
+                                                notIn: [
+                                                    '/gdc/md/FoodMartDemo/obj/58/elements?id=1000'
+                                                ]
+                                            }
+                                        }
+                                    ],
+                                    computeRatio: true
+                                }
+                            },
+                            title: 'Sum of Accounting Amount',
+                            format: '#,##0.00'
+                        }
+                    }
+                ]
+            },
+            {
+                localIdentifier: 'view',
+                items: [
+                    {
+                        visualizationAttribute: {
+                            localIdentifier: 'a1',
+                            displayForm: {
+                                uri: '/gdc/md/FoodMartDemo/obj/117'
+                            }
+                        }
+                    }
+                ]
+            }
+        ]
+    },
+    attributesMap: attributesMapForMeasureWithFilterAndCategoryShowInPercent
 };
 
 export const requestForMeasureWithNotInFilterAndCategoryShowInPercent = {
@@ -318,9 +402,7 @@ export const requestForMeasureWithNotInFilterAndCategoryShowInPercent = {
 const attributesMapForMeasureWithShowInPercent = {
     '/gdc/md/FoodMartDemo/obj/124': {
         attribute: {
-            content: {
-                type: 'attribute'
-            },
+            content: {},
             meta: {
                 uri: '/gdc/md/FoodMartDemo/obj/58'
             }
@@ -328,9 +410,7 @@ const attributesMapForMeasureWithShowInPercent = {
     },
     '/gdc/md/FoodMartDemo/obj/117': {
         attribute: {
-            content: {
-                type: 'attribute'
-            },
+            content: {},
             meta: {
                 uri: '/gdc/md/FoodMartDemo/obj/54'
             }
@@ -423,9 +503,7 @@ export const requestForMeasureWithShowInPercent = {
 const attributesMapForTwoMeasuresFactAndAtrribute = {
     '/gdc/md/FoodMartDemo/obj/124': {
         attribute: {
-            content: {
-                type: 'attribute'
-            },
+            content: {},
             meta: {
                 uri: '/gdc/md/FoodMartDemo/obj/58'
             }

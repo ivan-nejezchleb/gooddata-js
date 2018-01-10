@@ -538,9 +538,7 @@ describe('execution', () => {
                 const attributeObjects = [
                     {
                         attribute: {
-                            content: {
-                                type: 'attribute'
-                            },
+                            content: {},
                             meta: {
                                 uri: '/gdc/md/qamfsd9cw85e53mcqs74k8a0mwbf5gc2/obj/1025'
                             }
@@ -548,9 +546,7 @@ describe('execution', () => {
                     },
                     {
                         attribute: {
-                            content: {
-                                type: 'attribute'
-                            },
+                            content: {},
                             meta: {
                                 uri: '/gdc/md/qamfsd9cw85e53mcqs74k8a0mwbf5gc2/obj/949'
                             }
@@ -558,9 +554,7 @@ describe('execution', () => {
                     },
                     {
                         attribute: {
-                            content: {
-                                type: 'attribute'
-                            },
+                            content: {},
                             meta: {
                                 uri: '/gdc/md/qamfsd9cw85e53mcqs74k8a0mwbf5gc2/obj/969'
                             }
@@ -1140,9 +1134,7 @@ describe('execution', () => {
                 const attributeObjects = [
                     {
                         attribute: {
-                            content: {
-                                type: 'attribute'
-                            },
+                            content: {},
                             meta: {
                                 uri: '/gdc/md/qamfsd9cw85e53mcqs74k8a0mwbf5gc2/obj/1027'
                             }
@@ -1150,9 +1142,7 @@ describe('execution', () => {
                     },
                     {
                         attribute: {
-                            content: {
-                                type: 'attribute'
-                            },
+                            content: {},
                             meta: {
                                 uri: '/gdc/md/qamfsd9cw85e53mcqs74k8a0mwbf5gc2/obj/42'
                             }

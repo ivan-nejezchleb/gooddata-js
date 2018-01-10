@@ -390,7 +390,7 @@ function getCategories(buckets) {
 const getFilters = ({ filters }) => filters;
 
 function isDateCategory(category, attributesMap = {}) {
-    return getAttrTypeFromMap(get(category, 'displayForm'), attributesMap) !== undefined;
+    return getAttrTypeFromMap(get(category, ['displayForm', 'uri']), attributesMap) !== undefined;
 }
 
 function getMeasureSorting(measure, mdObj) {
