@@ -290,7 +290,7 @@ function getAttrFilterExpression(measureFilter, attributesMap) {
 }
 
 function getDateFilterExpression() {
-    // TODO
+    // measure date filter was never supported
     return '';
 }
 
@@ -394,7 +394,7 @@ function isDateCategory(category, attributesMap = {}) {
 }
 
 function getMeasureSorting(measure, mdObj) {
-    const sorting = get(mdObj, ['properties', 'sorts'], []); // TODO check this
+    const sorting = get(mdObj, ['properties', 'sorts'], []);
     const matchedSorting = sorting.find((sortItem) => {
         const measureSortItem = get(sortItem, ['measureSortItem']);
         if (measureSortItem) {
