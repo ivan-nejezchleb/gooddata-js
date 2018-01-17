@@ -676,7 +676,7 @@ const getOrderBy = (metrics, categories) => {
     return map(filter([...categories, ...metrics], item => item.sort), sortToOrderBy);
 };
 
-function getAttributesMap(projectId, categoryDisplayForms) {
+export function loadAttributesMap(projectId, categoryDisplayForms) {
     if (categoryDisplayForms.length === 0) {
         return Promise.resolve({});
     }
@@ -707,7 +707,7 @@ export const mdToExecutionConfiguration = (projectId, mdObj, options = {}, conte
     if (options.attributesMap) {
         attributesMapPromise = Promise.resolve(options.attributesMap);
     } else {
-        attributesMapPromise = getAttributesMap(projectId, [...categoryDfs, ...attrMeasureFiltersDfs]);
+        attributesMapPromise = loadAttributesMap(projectId, [...categoryDfs, ...attrMeasureFiltersDfs]);
     }
     return attributesMapPromise.then((attributesMap) => {
         const metrics = flatten(map(measures, (measure, index) =>

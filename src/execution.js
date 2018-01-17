@@ -1,5 +1,5 @@
 // Copyright (C) 2007-2017, GoodData(R) Corporation. All rights reserved.
-import { getData } from './execution/experimental-executions';
+import { getData, loadAttributesMap } from './execution/experimental-executions';
 import executeAfm from './execution/execute-afm';
 
 /**
@@ -11,5 +11,6 @@ import executeAfm from './execution/execute-afm';
  */
 export default {
     getData,
+    loadAttributesMap,
     executeAfm
 };
