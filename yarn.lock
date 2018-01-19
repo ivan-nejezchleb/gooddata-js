@@ -2,9 +2,9 @@
 # yarn lockfile v1
 
 
-"@gooddata/typings@0.0.5-pbenes-visualization-object-2018-01-18T15-12-13-622Z":
-  version "0.0.5-pbenes-visualization-object-2018-01-18T15-12-13-622Z"
-  resolved "https://registry.yarnpkg.com/@gooddata/typings/-/typings-0.0.5-pbenes-visualization-object-2018-01-18T15-12-13-622Z.tgz#fca7030662ef7da7e24e8af16d9297b388fe8bf6"
+"@gooddata/typings@0.0.5-pbenes-visualization-object-2018-01-19T13-25-53-793Z":
+  version "0.0.5-pbenes-visualization-object-2018-01-19T13-25-53-793Z"
+  resolved "https://registry.yarnpkg.com/@gooddata/typings/-/typings-0.0.5-pbenes-visualization-object-2018-01-19T13-25-53-793Z.tgz#31f8b761d815da942a10dbedd0b29cf367e4d49c"
 
 Base64@~0.2.0:
   version "0.2.1"
