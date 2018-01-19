@@ -18,7 +18,7 @@ function bucketItemsToExecConfig(projectId, mdObj, options = {}) {
     return mdToExecutionConfiguration(projectId, mdObj, options, 'catalogue').then((executionConfig) => {
         const definitions = get(executionConfig, 'definitions');
 
-        return get(executionConfig, 'columns').map((column) => {
+        return get(executionConfig, 'columns', []).map((column) => {
             const definition = find(definitions, ({ metricDefinition }) =>
                 get(metricDefinition, 'identifier') === column
             );
@@ -86,14 +86,12 @@ export function loadItems(projectId, options = {}) {
     const mdObj = get(cloneDeep(options), 'bucketItems');
     const { attributesMap } = options;
     const hasBuckets = get(mdObj, 'buckets') !== undefined;
-    if (mdObj && hasBuckets) {
+    if (hasBuckets) {
         return bucketItemsToExecConfig(projectId, mdObj, { attributesMap }).then(bucketItems =>
-            loadCatalog(projectId,
-                {
-                    ...request,
-                    bucketItems
-                }
-            )
+            loadCatalog(projectId, {
+                ...request,
+                bucketItems
+            })
         );
     }
 
@@ -110,12 +108,10 @@ function requestDateDataSets(projectId, dateDataSetsRequest) {
 
 export function loadDateDataSets(projectId, options) {
     const mdObj = get(cloneDeep(options), 'bucketItems');
-    let bucketItemsPromise;
-    if (mdObj) {
-        bucketItemsPromise = bucketItemsToExecConfig(projectId, mdObj, { removeDateItems: true, attributesMap: get(options, 'attributesMap') });
-    } else {
-        bucketItemsPromise = Promise.resolve();
-    }
+    const bucketItemsPromise = mdObj ?
+        bucketItemsToExecConfig(projectId, mdObj, { removeDateItems: true, attributesMap: get(options, 'attributesMap') }) :
+        Promise.resolve();
+
     return bucketItemsPromise.then((bucketItems) => {
         const omittedOptions = ['filter', 'types', 'paging', 'dataSetIdentifier', 'returnAllDateDataSets', 'returnAllRelatedDateDataSets', 'attributesMap'];
         // includeObjectsWithTags has higher priority than excludeObjectsWithTags,

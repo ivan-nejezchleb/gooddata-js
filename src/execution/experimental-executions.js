@@ -365,26 +365,33 @@ function getBuckets(mdObj) {
     return get(mdObj, 'buckets', []);
 }
 
+function getMeasuresInBucket(bucket) {
+    return get(bucket, 'items').reduce((list, bucketItem) => {
+        if (isMeasure(bucketItem)) {
+            list.push(get(bucketItem, 'measure'));
+        }
+
+        return list;
+    }, []);
+}
+
 function getMeasures(buckets) {
     return buckets.reduce((measuresList, bucket) =>
-        get(bucket, 'items').reduce((list, bucketItem) => {
-            if (isMeasure(bucketItem)) {
-                list.push(get(bucketItem, 'measure'));
-            }
-            return list;
-        }, measuresList)
-        , []);
+        measuresList.concat(getMeasuresInBucket(bucket)), []);
+}
+
+function getCategoriesInBucket(bucket) {
+    return get(bucket, 'items').reduce((list, bucketItem) => {
+        if (isCategory(bucketItem)) {
+            list.push(get(bucketItem, 'visualizationAttribute'));
+        }
+        return list;
+    }, []);
 }
 
 function getCategories(buckets) {
     return buckets.reduce((categoriesList, bucket) =>
-        get(bucket, 'items').reduce((list, bucketItem) => {
-            if (isCategory(bucketItem)) {
-                list.push(get(bucketItem, 'visualizationAttribute'));
-            }
-            return list;
-        }, categoriesList)
-        , []);
+        categoriesList.concat(getCategoriesInBucket(bucket)), []);
 }
 
 const getFilters = ({ filters }) => filters;
