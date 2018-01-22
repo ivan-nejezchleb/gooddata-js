@@ -34,7 +34,7 @@ describe('Catalogue', () => {
 
                 expect(data).toEqual(fixtures.requestForMeasureWithFilterAndCategory);
                 expect(get(data, 'catalogRequest.bucketItems.0')).toBe(
-                    get(fixtures, ['optionsForMeasureWithFilterAndCategory', 'attributesMap', '/gdc/md/FoodMartDemo/obj/117', 'attribute', 'meta', 'uri'])
+                    get(options, ['attributesMap', '/gdc/md/FoodMartDemo/obj/117', 'attribute', 'meta', 'uri'])
                 );
             });
         });
@@ -57,7 +57,7 @@ describe('Catalogue', () => {
 
                 expect(data).toEqual(fixtures.requestForMeasureWithShowInPercent);
                 expect(get(data, 'catalogRequest.bucketItems[0]')).toBe(
-                    get(fixtures, ['optionsForMeasureWithShowInPercent', 'attributesMap', '/gdc/md/FoodMartDemo/obj/117', 'attribute', 'meta', 'uri'])
+                    get(options, ['attributesMap', '/gdc/md/FoodMartDemo/obj/117', 'attribute', 'meta', 'uri'])
                 );
             });
         });
