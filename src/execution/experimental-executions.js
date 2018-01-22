@@ -511,7 +511,7 @@ const createPoPMetric = (popMeasure, mdObj, measureIndex, attributesMap) => {
     let getMetricExpression = partial(getPoPExpression, attributeUri, `[${get(getDefinition(originalMeasure), ['item', 'uri'])}]`);
 
     if (isDerived(originalMeasure)) {
-        const generated = createDerivedMetric(originalMeasure, mdObj, measureIndex);
+        const generated = createDerivedMetric(originalMeasure, mdObj, measureIndex, attributesMap);
         getMetricExpression = partial(getPoPExpression, attributeUri, `(${get(generated, ['definition', 'metricDefinition', 'expression'])})`);
     }
 
@@ -687,6 +687,7 @@ export function loadAttributesMap(projectId, categoryDisplayForms) {
     if (categoryDisplayForms.length === 0) {
         return Promise.resolve({});
     }
+
     return getObjects(projectId, categoryDisplayForms).then((displayForms) => {
         const attributeUris = displayForms.map(displayForm => get(displayForm, ['attributeDisplayForm', 'content', 'formOf']));
         return getObjects(projectId, attributeUris).then((attributes) => {
