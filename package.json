@@ -61,7 +61,7 @@
     "webpack-dev-server": "1.16.1"
   },
   "dependencies": {
-    "@gooddata/typings": "0.0.5-pbenes-visualization-object-2018-01-19T13-25-53-793Z",
+    "@gooddata/typings": "0.0.5-pbenes-visualization-object-2018-01-22T11-52-41-927Z",
     "es6-promise": "3.0.2",
     "fetch-cookie": "0.4.0",
     "invariant": "2.2.2",
