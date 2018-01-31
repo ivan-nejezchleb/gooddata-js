@@ -211,45 +211,7 @@ describe('Catalogue', () => {
         });
 
         it('should send empty columns if only date buckets are in the request', () => {
-            const mockPayload = {
-                bucketItems: {
-                    buckets: [
-                        {
-                            localIdentifier: 'attribute',
-                            items: [{
-                                visualizationAttribute: {
-                                    localIdentifier: 'a1',
-                                    displayForm: {
-                                        uri: '/gdc/md/FoodMartDemo/obj/attr1'
-                                    }
-                                }
-                            }]
-                        }
-                    ],
-                    filters: [{
-                        relativeDateFilter: {
-                            dataSet: {
-                                uri: '/attr1'
-                            },
-                            granularity: 'GDC.time.year',
-                            from: -1,
-                            to: -1
-                        }
-                    }]
-                },
-                attributesMap: {
-                    '/gdc/md/FoodMartDemo/obj/attr1': {
-                        attribute: {
-                            content: {
-                                type: 'GDC.time.year'
-                            },
-                            meta: {
-                                uri: '/gdc/md/qamfsd9cw85e53mcqs74k8a0mwbf5gc2/obj/1233'
-                            }
-                        }
-                    }
-                }
-            };
+            const mockPayload = fixtures.optionsForOnlyDateBuckets;
 
             return catalogue.loadDateDataSets(projectId, mockPayload).then(() => {
                 const { data } = fetchMock.lastOptions();
@@ -261,108 +223,7 @@ describe('Catalogue', () => {
         });
 
         it('should replace identifiers with pure MAQL', () => {
-            const mockPayload = {
-                bucketItems: {
-                    buckets: [
-                        {
-                            localIdentifier: 'measures',
-                            items: [
-                                {
-                                    measure: {
-                                        localIdentifier: 'm1_pop',
-                                        definition: {
-                                            popMeasureDefinition: {
-                                                measureIdentifier: 'm1',
-                                                popAttribute: {
-                                                    uri: '/gdc/md/ovs4ke6eyaus033gyojhv1rh7u1bukmy/obj/2167'
-                                                }
-                                            }
-                                        }
-                                    }
-                                },
-                                {
-                                    measure: {
-                                        localIdentifier: 'm1',
-                                        definition: {
-                                            measureDefinition: {
-                                                item: {
-                                                    uri: '/gdc/md/ovs4ke6eyaus033gyojhv1rh7u1bukmy/obj/2276'
-                                                },
-                                                filters: [
-                                                    {
-                                                        negativeAttributeFilter: {
-                                                            displayForm: {
-                                                                uri: '/gdc/md/ovs4ke6eyaus033gyojhv1rh7u1bukmy/obj/2267'
-                                                            },
-                                                            notIn: [
-                                                                '/gdc/md/ovs4ke6eyaus033gyojhv1rh7u1bukmy/obj/2266/elements?id=706'
-                                                            ]
-                                                        }
-                                                    }
-                                                ],
-                                                computeRatio: true,
-                                                aggregation: 'sum'
-                                            }
-                                        },
-                                        format: '#,##0.00',
-                                        title: 'Measure title'
-                                    }
-                                }
-                            ]
-                        },
-                        {
-                            localIdentifier: 'trend',
-                            items: [
-                                {
-                                    visualizationAttribute: {
-                                        localIdentifier: 'a1',
-                                        displayForm: {
-                                            uri: '/gdc/md/ovs4ke6eyaus033gyojhv1rh7u1bukmy/obj/2275'
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    ],
-                    filters: [
-                        {
-                            negativeAttributeFilter: {
-                                displayForm: {
-                                    uri: '/gdc/md/ovs4ke6eyaus033gyojhv1rh7u1bukmy/obj/2275'
-                                },
-                                notIn: []
-                            }
-                        },
-                        {
-                            absoluteDateFilter: {
-                                dataset: {
-                                    uri: '/gdc/md/ovs4ke6eyaus033gyojhv1rh7u1bukmy/obj/2180'
-                                },
-                                to: '2016-09-30',
-                                from: '2000-07-01'
-                            }
-                        }
-                    ]
-                },
-                attributesMap: {
-                    '/gdc/md/ovs4ke6eyaus033gyojhv1rh7u1bukmy/obj/2267': {
-                        attribute: {
-                            content: {},
-                            meta: {
-                                uri: '/gdc/md/ovs4ke6eyaus033gyojhv1rh7u1bukmy/obj/2266'
-                            }
-                        }
-                    },
-                    '/gdc/md/ovs4ke6eyaus033gyojhv1rh7u1bukmy/obj/2275': {
-                        attribute: {
-                            content: {},
-                            meta: {
-                                uri: '/gdc/md/ovs4ke6eyaus033gyojhv1rh7u1bukmy/obj/2274'
-                            }
-                        }
-                    }
-                }
-            };
+            const mockPayload = fixtures.optionsForPureMAQL;
 
             return catalogue.loadDateDataSets(projectId, mockPayload).then(() => {
                 const { data } = fetchMock.lastOptions();
