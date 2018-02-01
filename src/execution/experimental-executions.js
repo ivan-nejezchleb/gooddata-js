@@ -398,7 +398,7 @@ function isDateCategory(category, attributesMap = {}) {
 }
 
 function getMeasureSorting(measure, mdObj) {
-    const sorting = get(mdObj, ['properties', 'sorts'], []);
+    const sorting = get(mdObj, ['properties', 'sortItems'], []);
     const matchedSorting = sorting.find((sortItem) => {
         const measureSortItem = get(sortItem, ['measureSortItem']);
         if (measureSortItem) {
@@ -414,7 +414,7 @@ function getMeasureSorting(measure, mdObj) {
 }
 
 function getCategorySorting(category, mdObj) {
-    const sorting = get(mdObj, ['properties', 'sorts'], []);
+    const sorting = get(mdObj, ['properties', 'sortItems'], []);
     const matchedSorting = sorting.find((sortItem) => {
         const attributeSortItem = get(sortItem, ['attributeSortItem']);
         if (attributeSortItem) {

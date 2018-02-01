@@ -480,7 +480,7 @@ describe('execution', () => {
                         }
                     ],
                     properties: {
-                        sorts: [
+                        sortItems: [
                             {
                                 measureSortItem: {
                                     direction: 'desc',
@@ -953,7 +953,7 @@ describe('execution', () => {
                     ]
                 };
                 mdObjPoP.properties = {
-                    sorts: [
+                    sortItems: [
                         {
                             measureSortItem: {
                                 direction: 'desc',
