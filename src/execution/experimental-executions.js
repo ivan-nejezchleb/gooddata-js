@@ -13,8 +13,6 @@ import {
     get,
     isEmpty,
     negate,
-    last,
-    assign,
     partial,
     flatten,
     set
@@ -246,26 +244,6 @@ function isAttrFilterNegative(attributeFilter) {
     return get(attributeFilter, 'negativeAttributeFilter') !== undefined;
 }
 
-function getDateFilterInterval(dateFilter) {
-    if (get(dateFilter, 'absoluteDateFilter')) {
-        return {
-            from: get(dateFilter, ['absoluteDateFilter', 'from']),
-            to: get(dateFilter, ['absoluteDateFilter', 'to'])
-        };
-    }
-    return {
-        from: get(dateFilter, ['relativeDateFilter', 'from']),
-        to: get(dateFilter, ['relativeDateFilter', 'to'])
-    };
-}
-
-function getDataSetFromDateFilter(dateFilter) {
-    if (get(dateFilter, 'absoluteDateFilter')) {
-        return get(dateFilter, ['absoluteDateFilter', 'dataSet', 'uri']);
-    }
-    return get(dateFilter, ['relativeDateFilter', 'dataSet', 'uri']);
-}
-
 function getAttrFilterElements(attributeFilter) {
     const isNegative = isAttrFilterNegative(attributeFilter);
     const pathToElements = isNegative ? ['negativeAttributeFilter', 'notIn'] : ['positiveAttributeFilter', 'in'];
@@ -390,8 +368,6 @@ function getCategories(buckets) {
     return buckets.reduce((categoriesList, bucket) =>
         categoriesList.concat(getCategoriesInBucket(bucket)), []);
 }
-
-const getFilters = ({ filters }) => filters;
 
 function isDateCategory(category, attributesMap = {}) {
     return getAttrTypeFromMap(get(category, ['displayForm', 'uri']), attributesMap) !== undefined;
@@ -568,42 +544,12 @@ function createContributionPoPMetric(popMeasure, mdObj, measureIndex, attributes
     };
 }
 
-function categoryToElement(attributesMap, mdObj, context, category) {
-    // for catalogue columns contain attribute uri, but for execution display form uri
-    const element = context === 'catalogue' ? getAttrUriFromMap(get(category, ['displayForm', 'uri']), attributesMap) : get(category, ['displayForm', 'uri']);
+function categoryToElement(attributesMap, mdObj, category) {
+    const element = getAttrUriFromMap(get(category, ['displayForm', 'uri']), attributesMap);
     return {
         element,
         sort: getCategorySorting(category, mdObj)
     };
-}
-
-function attributeFilterToWhere(f) {
-    const elements = getAttrFilterElements(f);
-    const elementsForQuery = map(elements, e => ({ id: last(e.split('=')) }));
-
-    const dfUri = getAttrMeasureFilterDf(f);
-    const negative = isAttrFilterNegative(f);
-
-    return negative ?
-        { [dfUri]: { $not: { $in: elementsForQuery } } } :
-        { [dfUri]: { $in: elementsForQuery } };
-}
-
-function toInteger(value) {
-    return parseInt(value, 10);
-}
-
-function dateFilterToWhere(f) {
-    const dateUri = getDataSetFromDateFilter(f);
-
-    const granularity = get(f, ['relativeDateFilter', 'granularity'], 'GDC.time.date');
-    const isRelative = get(f, 'relativeDateFilter') !== undefined;
-
-    let { from, to } = getDateFilterInterval(f);
-    from = isRelative ? toInteger(from) : from;
-    to = isRelative ? toInteger(to) : to;
-    const between = [from, to];
-    return { [dateUri]: { $between: between, $granularity: granularity } };
 }
 
 function isPoP({ definition }) {
@@ -658,77 +604,45 @@ function getMetricFactory(measure, mdObj) {
     return factory;
 }
 
-function isDateFilterExecutable(dateFilter) {
-    const { from, to } = getDateFilterInterval(dateFilter);
-    return from !== undefined && to !== undefined;
+function getAttributesMap(options, displayFormUris, projectId) {
+    if (options.attributesMap) {
+        return Promise.resolve(options.attributesMap);
+    }
+    return loadAttributesMap(projectId, displayFormUris);
 }
 
-function isAttributeFilterExecutable(attributeFilter) {
-    return notEmpty(getAttrFilterElements(attributeFilter));
-}
-
-function getWhere(filters) {
-    const executableFilters = filter(
-        filters, attributeFilter => isAttributeFilterExecutable(attributeFilter)
-    );
-    const attributeFilters = map(executableFilters, attributeFilterToWhere);
-    const dateFilters = map(filter(filters, isDateFilterExecutable), dateFilterToWhere);
-
-    const resultDate = [...dateFilters].reduce(assign, {});
-    const resultAttribute = {
-        $and: attributeFilters
-    };
-
-    return {
-        ...resultDate,
-        ...resultAttribute
-    };
-}
-
-function sortToOrderBy(item) {
-    return {
-        column: get(item, 'element'),
-        direction: get(item, 'sort')
-    };
-}
-
-function getOrderBy(metrics, categories) {
-    return map(filter([...categories, ...metrics], item => item.sort), sortToOrderBy);
-}
-
-export const mdToExecutionConfiguration = (projectId, mdObj, options = {}, context = 'execution') => {
+function getExecutionDefinitionsAndColumns(mdObj, options, attributesMap) {
     const buckets = getBuckets(mdObj);
     const measures = getMeasures(buckets);
     let categories = getCategories(buckets);
+
+    const metrics = flatten(map(measures, (measure, index) =>
+        getMetricFactory(measure, mdObj)(measure, mdObj, index, attributesMap))
+    );
+    if (options.removeDateItems) {
+        categories = filter(categories, category => !isDateCategory(category, attributesMap));
+    }
+    categories = map(categories, partial(categoryToElement, attributesMap, mdObj));
+
+    const columns = compact(map([...categories, ...metrics], 'element'));
+    return {
+        columns,
+        definitions: sortDefinitions(compact(map(metrics, 'definition')))
+    };
+}
+
+export const mdToExecutionDefinitionsAndColumns = (projectId, mdObj, options = {}) => {
+    const buckets = getBuckets(mdObj);
+    const measures = getMeasures(buckets);
+    const categories = getCategories(buckets);
     const attrMeasureFilters = filter(measures.reduce((filters, measure) =>
         filters.concat(getMeasureFilters(measure)),
     []), isAttrMeasureFilter);
     const attrMeasureFiltersDfs = attrMeasureFilters.map(getAttrMeasureFilterDf);
     const categoryDfs = categories.map(category => get(category, ['displayForm', 'uri']));
-    let attributesMapPromise;
-    if (options.attributesMap) {
-        attributesMapPromise = Promise.resolve(options.attributesMap);
-    } else {
-        attributesMapPromise = loadAttributesMap(projectId, [...categoryDfs, ...attrMeasureFiltersDfs]);
-    }
-    return attributesMapPromise.then((attributesMap) => {
-        const metrics = flatten(map(measures, (measure, index) =>
-            getMetricFactory(measure, mdObj)(measure, mdObj, index, attributesMap))
-        );
-        let filters = getFilters(mdObj);
-        if (options.removeDateItems) {
-            categories = filter(categories, category => !isDateCategory(category, attributesMap));
-            filters = filter(filters, item => !item.dateFilter);
-        }
-        categories = map(categories, partial(categoryToElement, attributesMap, mdObj, context));
+    const attributesMapPromise = getAttributesMap(options, [...categoryDfs, ...attrMeasureFiltersDfs], projectId);
 
-        const columns = compact(map([...categories, ...metrics], 'element'));
-        return {
-            columns,
-            orderBy: getOrderBy(metrics, categories),
-            definitions: sortDefinitions(compact(map(metrics, 'definition'))),
-            where: columns.length ? getWhere(filters) : {},
-            metricMappings: map(metrics, m => ({ element: m.element, ...m.meta }))
-        };
+    return attributesMapPromise.then((attributesMap) => {
+        return getExecutionDefinitionsAndColumns(mdObj, options, attributesMap);
     });
 };

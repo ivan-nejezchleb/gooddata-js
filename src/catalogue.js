@@ -1,6 +1,6 @@
 import { get, find, omit, cloneDeep } from 'lodash';
 import { post, parseJSON } from './xhr';
-import { mdToExecutionConfiguration } from './execution/experimental-executions';
+import { mdToExecutionDefinitionsAndColumns } from './execution/experimental-executions';
 
 const REQUEST_DEFAULTS = {
     types: ['attribute', 'metric', 'fact'],
@@ -15,10 +15,10 @@ const LOAD_DATE_DATASET_DEFAULTS = {
 };
 
 function bucketItemsToExecConfig(projectId, mdObj, options = {}) {
-    return mdToExecutionConfiguration(projectId, mdObj, options, 'catalogue').then((executionConfig) => {
-        const definitions = get(executionConfig, 'definitions');
+    return mdToExecutionDefinitionsAndColumns(projectId, mdObj, options).then((definitionsAndColumns) => {
+        const definitions = get(definitionsAndColumns, 'definitions');
 
-        return get(executionConfig, 'columns', []).map((column) => {
+        return get(definitionsAndColumns, 'columns', []).map((column) => {
             const definition = find(definitions, ({ metricDefinition }) =>
                 get(metricDefinition, 'identifier') === column
             );
